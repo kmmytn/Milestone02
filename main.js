@@ -9,3 +9,11 @@ btnSignIn.addEventListener('click', () => {
 btnSignUp.addEventListener('click', () => {
     container.classList.remove('active')
 })
+
+const profilePhotoInput = document.getElementById('pfp');
+const customFileLabel = document.querySelector('.custom-file-label');
+
+profilePhotoInput.addEventListener('change', () => {
+    const fileName = profilePhotoInput.files[0]?.name || 'Choose Profile Photo';
+    customFileLabel.textContent = fileName;
+});
