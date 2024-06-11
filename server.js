@@ -1,6 +1,7 @@
 // Import required modules
 const express = require('express');
-const routes = require('./routes'); // Import routes from routes.js
+const routes = require('./routes');
+const db = require('./database');
 const app = express();
 const port = 3000;
 
@@ -9,21 +10,6 @@ app.use(express.json());
 
 app.use(express.static('public'));
 
-// Connect to MySQL database
-const mysql = require('mysql');
-
-
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'admin',
-    database: 'cssecdv'
-});
-
-db.connect((err) => {
-    if (err) throw err;
-    console.log('Connected to the database.');
-});
 
 // Use routes
 app.use('/', routes);

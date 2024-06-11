@@ -18,7 +18,7 @@ profilePhotoInput.addEventListener('change', () => {
     customFileLabel.textContent = fileName;
 });
 
-document.getElementById('form_input').addEventListener('submit', function(e) {
+document.getElementById('form_signup').addEventListener('submit', function(e) {
     e.preventDefault(); // Prevent the form from submitting normally
 
     const formData = new FormData(this); // Get form data

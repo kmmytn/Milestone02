@@ -1,5 +1,6 @@
 const express = require('express');
 const upload = require('./uploads');
+const db = require('./database');
 const router = express.Router();
 
 // Example route to get data from the database
@@ -17,11 +18,12 @@ router.get('/', (req, res) => {
 
 router.post('/signup', upload.single('pfp'), (req, res) => {
     const { full_name, email, phone_number, password } = req.body;
+    const profilePicturePath = req.file? req.file.path : null; // Handle file upload
+
+    // Construct the SQL query
     const sql = 'INSERT INTO users (full_name, email, phone_number, password, profile_picture) VALUES (?,?,?,?,?)';
-
-    // Assuming the file is optional, check if it exists before trying to insert
-    const profilePicturePath = req.file? req.file.path : null;
-
+    
+    // Execute the query
     db.query(sql, [full_name, email, phone_number, password, profilePicturePath], (err, result) => {
         if (err) {
             console.error(err);
