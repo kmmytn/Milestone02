@@ -18,15 +18,58 @@ router.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+function isValidImage(file) {
+    const buffer = Buffer.from(file.buffer);
+    const signature = buffer.slice(0, 4);
+
+    // JPEG file signature
+    if (signature.equals(Buffer.from([0xFF, 0xD8, 0xFF])) ||
+        // PNG file signature
+        signature.equals(Buffer.from([0x89, 0x50, 0x4E, 0x47]))) {
+        return true;
+    }
+
+    return false;
+}
+
 router.post('/signup', upload.single('pfp'), async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup } = req.body;
     const profilePicturePath = req.file? req.file.path : null; // Handle file upload
-    
+
+    // Validate phone number
+    const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phone_number);
+    const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phone_number);
+    if (!isValidInternational &&!isValidPhilippine) {
+        return res.status(400).json({ error: 'Please enter a valid phone number.' });
+    }
+
+    // Validate email
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailsignup);
+    if (!isValidEmail) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    if (req.file &&!isValidImage(req.file)) {
+        console.log("wrong file type");
+        return res.status(400).json({ error: 'Invalid file type. Only JPEG/PNG images allowed.' });
+    }
+
+    // Validate password
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W]).{12,64}$/;
+    if (!passwordRegex.test(passwordsignup)) {
+        return res.status(400).json({ error: 'Password must include uppercase, lowercase letters, digits, special characters, and be 12-64 characters long.' });
+    }
+
+    // Check if passwords match
+    const confirmPassword = req.body.confirmpassword; // Assuming confirmpassword is sent in the request body
+    if (passwordsignup!== confirmPassword) {
+        return res.status(400).json({ error: 'Passwords do not match.' });
+    }
 
     try {
         const hashedPassword = await bcrypt.hash(passwordsignup, 10);
 
-        // Correctly construct the SQL query with matching placeholders and values
+        // Insert user into database
         const sql = 'INSERT INTO users (full_name, email, phone_number, password, profile_picture) VALUES (?,?,?,?,?)';
         db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
             if (err) {
