@@ -425,3 +425,14 @@ body {
     cursor: pointer;
     display: none;
 }
+
+.error-message {
+    color: red; 
+    font-size: 14px; 
+    margin-top: 5px; 
+    display: none; 
+}
+
+.error-message.visible {
+    display: block; /* Make the error message visible when needed */
+}

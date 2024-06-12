@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <!-- link css -->
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="./style.css">
 
     <!-- link icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" integrity="sha512-ZnR2wlLbSbr8/c9AgLg3jQPAattCUImNsae6NHYnS9KrIwRdcY9DxFotXhNAKIKbAXlRnujIqUWoXXwqyFOeIQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -40,29 +40,31 @@
                 <form action="#" id="form_signup">
                     <div class="type">
 
-                        <input type="text" name="full_name" placeholder="Full Name" id="name">
+                        <input type="text" name="full_name" placeholder="Full Name" id="name" required>
                     </div>
                     <div class="type">
                         
-                        <input type="email" name="email" placeholder="Email" id="email">
+                        <input type="email" name="email" placeholder="Email" id="email" required>
                     </div>
                     <div class="type">
                         
-                        <input type="tel" name="phone_number" placeholder="Phone Number" id="phone">
+                        <input type="tel" name="phone_number" placeholder="Phone Number" id="phone" required>
+                        <div id="phone-error" class="error-message"></div>
                     </div>
 
                     <!-- PROFILE PHOTO HERE -->
                     <div class="type">
-                        <input type="file" name="pfp" placeholder="Profile Photo" id="pfp" accept="image/*" class="file-input">
+                        <input type="file" name="pfp" placeholder="Profile Photo" id="pfp" accept="image/*" class="file-input" required>
                         <label for="pfp" class="custom-file-label">Choose Profile Photo</label>
                     </div>
                     <div class="type">
 
-                        <input type="password" name="" placeholder="Password" id="password">
+                        <input type="password" name="" placeholder="Password" id="password" required>
                     </div>
                     <div class="type">
 
-                        <input type="password" name="password" placeholder="Confirm Password" id="confirmpassword">
+                        <input type="password" name="password" placeholder="Confirm Password" id="confirmpassword" required>
+                        <div id="pass-error" class="error-message"></div>
                     </div>
 
                     <button class="btn bkg">Sign Up</button>
@@ -90,6 +92,6 @@
     
 
     <!-- link script -->
-    <script src="/main.js"></script>
+    <script src="./main.js"></script>
 </body>
 </html>
