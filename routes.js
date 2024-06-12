@@ -18,20 +18,6 @@ router.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
-function isValidImage(file) {
-    const buffer = Buffer.from(file.buffer);
-    const signature = buffer.slice(0, 4);
-
-    // JPEG file signature
-    if (signature.equals(Buffer.from([0xFF, 0xD8, 0xFF])) ||
-        // PNG file signature
-        signature.equals(Buffer.from([0x89, 0x50, 0x4E, 0x47]))) {
-        return true;
-    }
-
-    return false;
-}
-
 router.post('/signup', upload.single('pfp'), async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup } = req.body;
     const profilePicturePath = req.file? req.file.path : null; // Handle file upload
@@ -49,11 +35,6 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
         return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
 
-    if (req.file &&!isValidImage(req.file)) {
-        console.log("wrong file type");
-        return res.status(400).json({ error: 'Invalid file type. Only JPEG/PNG images allowed.' });
-    }
-
     // Validate password
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W]).{12,64}$/;
     if (!passwordRegex.test(passwordsignup)) {
@@ -67,6 +48,19 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 
     try {
+        // Check for duplicate email
+        const emailExists = await db.query('SELECT COUNT(*) as count FROM users WHERE email =?', [emailsignup]);
+        if (emailExists[0].count > 0) {
+            return res.status(409).json({ error: 'Email already exists.' });
+        }
+
+        // Check for duplicate phone number
+        const phoneExists = await db.query('SELECT COUNT(*) as count FROM users WHERE phone_number =?', [phone_number]);
+        if (phoneExists[0].count > 0) {
+            return res.status(409).json({ error: 'Phone number already exists.' });
+        }
+
+        // If no duplicates found, proceed with user creation
         const hashedPassword = await bcrypt.hash(passwordsignup, 10);
 
         // Insert user into database

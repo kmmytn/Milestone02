@@ -94,9 +94,6 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
                 location.reload();
             } else {
                 alert('An error occurred during signup.');
-                const errorMessage = JSON.parse(xhr.responseText).error;
-                document.getElementById('img-error').textContent = errorMessage;
-                document.getElementById('img-error').classList.add('visible');
             }
         };
         xhr.send(formData);
