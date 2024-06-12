@@ -65,3 +65,46 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
     };
     xhr.send(formData);
 });
+
+document.getElementById('form_login').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+        alert('Please enter both email and password.');
+        return;
+    }
+
+    const loginData = { email, password };
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/login', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.sessionId) {
+                localStorage.setItem('sessionId', response.sessionId); // Store the session ID
+                alert('Logged in successfully.');
+                // Redirect based on role
+                if (response.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'user.html';
+                }
+            } else {
+                alert('Login failed. Please try again.');
+            }
+        } else {
+            alert('Invalid email or password.');
+        }
+    };
+    xhr.send(JSON.stringify(loginData));
+});
+
+function generateSessionId(byteLength) {
+    const array = new Uint8Array(byteLength);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, byte => ('00' + byte.toString(16)).slice(-2)).join('');
+}
