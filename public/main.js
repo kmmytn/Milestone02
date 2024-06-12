@@ -71,6 +71,7 @@ document.getElementById('form_login').addEventListener('submit', function(event)
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const loginError = document.getElementById('login-error');
 
     if (!email || !password) {
         alert('Please enter both email and password.');
@@ -98,13 +99,9 @@ document.getElementById('form_login').addEventListener('submit', function(event)
             }
         } else {
             alert('Invalid email or password.');
+            loginError.textContent = 'User or Password does not match.';
+            loginError.classList.add('visible');
         }
     };
     xhr.send(JSON.stringify(loginData));
 });
-
-function generateSessionId(byteLength) {
-    const array = new Uint8Array(byteLength);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, byte => ('00' + byte.toString(16)).slice(-2)).join('');
-}
