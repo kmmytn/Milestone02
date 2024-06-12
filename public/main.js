@@ -19,51 +19,68 @@ profilePhotoInput.addEventListener('change', () => {
 });
 
 document.getElementById('form_signup').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevent the form from submitting normally
+    e.preventDefault();
 
-    const phoneNumber = document.getElementById('phone').value;
-    const phoneError = document.getElementById('phone-error'); // Get the error message span
-    
-    // Clear any previous error messages
-    phoneError.textContent = '';
-
-    // First, check against the general international pattern
-    const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phoneNumber);
-    const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phoneNumber);
-    console.log(isValidPhilippine);
-    if (!isValidInternational && !isValidPhilippine) {
-        phoneError.textContent = 'Please enter a valid phone number.';
-        phoneError.classList.add('visible');
-        return false; // Stop the submission process
-    }
-
-    const password = document.getElementById('password').value.trim();
-    const confirmPassword = document.getElementById('confirmpassword').value.trim();
+    // Initialize references to error message elements
+    const phoneError = document.getElementById('phone-error');
+    const emailError = document.getElementById('email-error');
     const passError = document.getElementById('pass-error');
 
-    passError.textContent = '';
+    // Phone number validation
+    const phoneNumber = document.getElementById('phone').value;
+    const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phoneNumber);
+    const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phoneNumber);
+    if (!isValidInternational &&!isValidPhilippine) {
+        phoneError.textContent = 'Please enter a valid phone number.';
+        phoneError.classList.add('visible');
+    } else {
+        phoneError.textContent = '';
+        phoneError.classList.remove('visible');
+    }
 
-    if (password!== confirmPassword) {
+    // Email validation
+    const email = document.getElementById('emailsignup').value; // Corrected to get value
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValidEmail) {
+        emailError.textContent = 'Please enter a valid email address.';
+        emailError.classList.add('visible');
+    } else {
+        emailError.textContent = '';
+        emailError.classList.remove('visible');
+    }
+
+    // Password confirmation validation
+    const password = document.getElementById('passwordsignup').value.trim();
+    const confirmPassword = document.getElementById('confirmpassword').value.trim();
+    const isValidPassword = password === confirmPassword;
+    if (!isValidPassword) {
         passError.textContent = 'Passwords do not match.';
         passError.classList.add('visible');
-        return false; // Stop the submission process
+    } else {
+        passError.textContent = '';
+        passError.classList.remove('visible');
     }
-    
-    
 
-    // If the phone number is valid, proceed with form submission
-    const formData = new FormData(this); // Get form data
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/signup', true);
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            alert(xhr.responseText); // Show success message
-            location.reload(); // Reload the page
-        } else {
-            alert('An error occurred during signup.');
-        }
-    };
-    xhr.send(formData);
+    // Determine if form submission should proceed
+    const shouldSubmit =!phoneError.textContent &&!emailError.textContent &&!passError.textContent;
+    if (shouldSubmit) {
+        // Proceed with form submission
+        const formData = new FormData(this);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/signup', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                alert(xhr.responseText);
+                location.reload();
+            } else {
+                alert('An error occurred during signup.');
+            }
+        };
+        xhr.send(formData);
+    } else {
+        // Prevent form submission if there are errors
+        return false;
+    }
 });
 
 document.getElementById('form_login').addEventListener('submit', function(event) {

@@ -19,26 +19,16 @@ router.get('/', (req, res) => {
 });
 
 router.post('/signup', upload.single('pfp'), async (req, res) => {
-    const { full_name, email, phone_number, password } = req.body;
+    const { full_name, emailsignup, phone_number, passwordsignup } = req.body;
     const profilePicturePath = req.file? req.file.path : null; // Handle file upload
-
-    // Validate the phone number
-    const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phone_number); // Adjust this pattern as needed
-    const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phone_number);
-    if (!isValidInternational && !isValidPhilippine) {
-        return res.status(400).json({ error: 'Invalid phone number.'});
-    }
-
-    if (!password) {
-        return res.status(400).json({ error: 'Password is required.' });
-    }
+    
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(passwordsignup, 10);
 
         // Correctly construct the SQL query with matching placeholders and values
         const sql = 'INSERT INTO users (full_name, email, phone_number, password, profile_picture) VALUES (?,?,?,?,?)';
-        db.query(sql, [full_name, email, phone_number, hashedPassword, profilePicturePath], (err, result) => {
+        db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
             if (err) {
                 console.error(err);
                 return res.status(500).json({ error: 'Error signing up.' });
