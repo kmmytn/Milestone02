@@ -53,7 +53,14 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
     const password = document.getElementById('passwordsignup').value.trim();
     const confirmPassword = document.getElementById('confirmpassword').value.trim();
     const isValidPassword = password === confirmPassword;
-    if (!isValidPassword) {
+    
+    // New regex pattern for password validation
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W]).{12,64}$/;
+    
+    if (!passwordRegex.test(password)) {
+        passError.textContent = 'Password must include uppercase, lowercase letters, digits, special characters, and be 12-64 characters long.';
+        passError.classList.add('visible');
+    } else if (!isValidPassword) {
         passError.textContent = 'Passwords do not match.';
         passError.classList.add('visible');
     } else {
@@ -122,3 +129,5 @@ document.getElementById('form_login').addEventListener('submit', function(event)
     };
     xhr.send(JSON.stringify(loginData));
 });
+
+
