@@ -18,10 +18,16 @@ router.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+const restrictedNames = ['admin', 'ADMIN'];
+
 router.post('/signup', upload.single('pfp'), async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup } = req.body;
     const profilePicturePath = req.file? req.file.path : null; // Handle file upload
 
+    const normalizedFullName = full_name.toLowerCase();
+    if (restrictedNames.includes(normalizedFullName)) {
+        return res.status(400).json({ error: 'The name is not allowed.' });
+    }
     // Validate phone number
     const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phone_number);
     const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phone_number);
@@ -55,8 +61,8 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
         db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
             if (err) {
                 console.error(err);
-                if (err && err.code === 'ER_DUP_ENTRY') { // MySQL error code for duplicate entry
-                    return res.status(409).json({ error: 'Email already exists.' });
+                if (err && err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: 'Email already exists.' });
                 } else {
                     return res.status(500).json({ error: 'Error signing up.' });
                 }
