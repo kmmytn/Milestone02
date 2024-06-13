@@ -48,19 +48,6 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 
     try {
-        // Check for duplicate email
-        const emailExists = await db.query('SELECT COUNT(*) as count FROM users WHERE email =?', [emailsignup]);
-        if (emailExists[0].count > 0) {
-            return res.status(409).json({ error: 'Email already exists.' });
-        }
-
-        // Check for duplicate phone number
-        const phoneExists = await db.query('SELECT COUNT(*) as count FROM users WHERE phone_number =?', [phone_number]);
-        if (phoneExists[0].count > 0) {
-            return res.status(409).json({ error: 'Phone number already exists.' });
-        }
-
-        // If no duplicates found, proceed with user creation
         const hashedPassword = await bcrypt.hash(passwordsignup, 10);
 
         // Insert user into database
@@ -68,7 +55,11 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
         db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).json({ error: 'Error signing up.' });
+                if (err && err.code === 'ER_DUP_ENTRY') { // MySQL error code for duplicate entry
+                    return res.status(409).json({ error: 'Email already exists.' });
+                } else {
+                    return res.status(500).json({ error: 'Error signing up.' });
+                }
             }
             res.status(200).json({ message: 'Signed up successfully.' });
         });

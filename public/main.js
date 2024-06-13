@@ -10,25 +10,32 @@ btnSignUp.addEventListener('click', () => {
     container.classList.remove('active')
 })
 
-const profilePhotoInput = document.getElementById('pfp');
-const customFileLabel = document.querySelector('.custom-file-label');
-const imgError = document.getElementById('img-error');
 
-document.getElementById('pfp').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const fileType = file.type;
-        if (fileType!== 'image/jpeg' && fileType!== 'image/png') {
-            imgError.textContent = 'Invalid file type. Only JPEG/PNG images allowed.';
-            imgError.classList.add('visible');
-            e.target.value = ''; // Clear the selection
-        } else {
-            imgError.textContent = '';
-            imgError.classList.remove('visible');
-            const fileName = file.name || 'Choose Profile Photo';
-            document.querySelector('.custom-file-label').textContent = fileName;
+document.addEventListener('DOMContentLoaded', function() {
+    const imgError = document.getElementById('img-error');
+    const fileLabel = document.querySelector('.custom-file-label');
+
+    document.getElementById('pfp').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const fileType = file.type;
+
+            if (fileType!== 'image/jpeg' && fileType!== 'image/png' && fileType!== 'image/jpg') {
+                if (imgError) { // Check if imgError is not null
+                    imgError.textContent = 'Invalid file type. Only JPEG/PNG images allowed.';
+                    imgError.classList.add('visible');
+                    e.target.value = ''; // Clear the selection
+                }
+            } else {
+                if (imgError) { // Check if imgError is not null
+                    imgError.textContent = '';
+                    imgError.classList.remove('visible');
+                }
+                const fileName = file.name || 'Choose Profile Photo';
+                fileLabel.textContent = fileName;
+            }
         }
-    }
+    });
 });
 
 document.getElementById('form_signup').addEventListener('submit', function(e) {
