@@ -77,7 +77,6 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
 
 router.post('/login', trackLoginAttempts, async (req, res) => {
     const { email, password } = req.body;
-    const ip = req.ip;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required.' });
@@ -104,11 +103,11 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
 
             req.session.user = user;
             req.session.lastActivity = Date.now();
-            req.session.loginAttempts[ip] = { attempts: 0, lockUntil: null }; // Reset attempts on successful login
+            req.session.loginAttempts[req.ip] = { attempts: 0, lockUntil: null }; // Reset attempts on successful login
 
             const sessionId = crypto.randomBytes(16).toString('hex'); // Generate a 16-byte session ID
 
-            // Store sessionId in the database or in-memory store (e.g., Redis)
+            // Store sessionId in the database
             const sessionSql = 'INSERT INTO sessions (user_id, session_id) VALUES (?, ?)';
             db.query(sessionSql, [user.id, sessionId], (sessionErr) => {
                 if (sessionErr) {
@@ -182,7 +181,7 @@ router.get('/check-session', checkSessionTimeout, (req, res) => {
     } else {
         res.status(401).json({ error: 'Session expired.' });
     }
-});
+})
 
 
 module.exports = router;

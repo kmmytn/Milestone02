@@ -118,7 +118,8 @@ document.getElementById('form_login').addEventListener('submit', function(event)
     const loginError = document.getElementById('login-error');
 
     if (!email || !password) {
-        alert('Please enter both email and password.');
+        loginError.textContent = "Please enter both email and password";
+        loginError.classList.add('visible');
         return;
     }
 
@@ -127,35 +128,15 @@ document.getElementById('form_login').addEventListener('submit', function(event)
     xhr.open('POST', '/login', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
+        const response = JSON.parse(xhr.responseText);
         if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.sessionId) {
-                localStorage.setItem('sessionId', response.sessionId); // Store the session ID
-                alert('Logged in successfully.');
-                // Redirect based on role
-                if (response.role === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'user.html';
-                }
-            } else {
-                alert('Login failed. Please try again.');
-            }
-        } else if (xhr.status === 401 || xhr.status === 429) { // Handle invalid email/password and too many attempts
-            const response = JSON.parse(xhr.responseText);
-            if (response.error) {
-                loginError.textContent = response.error;
-                loginError.classList.add('visible');
-            } else {
-                loginError.textContent = 'Invalid email or password.';
-                loginError.classList.add('visible');
-            }
+            // localStorage.setItem('sessionId', response.sessionId); // Store the session ID
+            alert('Logged in successfully.');
+            window.location.href = response.role === 'admin' ? 'admin.html' : 'user.html';
         } else {
-            alert('An error occurred. Please try again.');
+            loginError.textContent = response.error || 'An error occurred. Please try again.';
+            loginError.classList.add('visible');
         }
     };
     xhr.send(JSON.stringify(loginData));
 });
-
-
-
