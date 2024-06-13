@@ -78,8 +78,9 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', trackLoginAttempts, async (req, res) => {
     const { email, password } = req.body;
+    const ip = req.ip;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required.' });
@@ -94,15 +95,19 @@ router.post('/login', async (req, res) => {
             }
 
             if (results.length === 0) {
-                return res.status(401).json({ error: 'Invalid email or password.' });
+                return handleFailedLoginAttempt(req, res);
             }
 
             const user = results[0];
             const passwordMatch = await bcrypt.compare(password, user.password);
 
             if (!passwordMatch) {
-                return res.status(401).json({ error: 'Invalid email or password.' });
+                return handleFailedLoginAttempt(req, res);
             }
+
+            req.session.user = user;
+            req.session.lastActivity = Date.now();
+            req.session.loginAttempts[ip] = { attempts: 0, lockUntil: null }; // Reset attempts on successful login
 
             const sessionId = crypto.randomBytes(16).toString('hex'); // Generate a 16-byte session ID
 
@@ -128,7 +133,58 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
+    req.session.destroy();
     return res.status(200).json({ message: 'Logged out successfully.' });
+});
+
+// Middleware to check session timeout
+function checkSessionTimeout(req, res, next) {
+    if (req.session.user) {
+        if (Date.now() - req.session.lastActivity > 30000) { // 30 seconds
+            req.session.destroy();
+            return res.status(401).json({ error: 'Session timed out. Please log in again.' });
+        } else {
+            req.session.lastActivity = Date.now();
+        }
+    }
+    next();
+}
+
+// Middleware to track login attempts
+function trackLoginAttempts(req, res, next) {
+    const ip = req.ip;
+    if (!req.session.loginAttempts) {
+        req.session.loginAttempts = {};
+    }
+    if (!req.session.loginAttempts[ip]) {
+        req.session.loginAttempts[ip] = { attempts: 0, lockUntil: null };
+    }
+    const userAttempts = req.session.loginAttempts[ip];
+    if (userAttempts.lockUntil && userAttempts.lockUntil > Date.now()) {
+        return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+    }
+    next();
+}
+
+function handleFailedLoginAttempt(req, res) {
+    const ip = req.ip;
+    const userAttempts = req.session.loginAttempts[ip];
+    userAttempts.attempts += 1;
+    if (userAttempts.attempts >= 3) {
+        userAttempts.lockUntil = Date.now() + 30000; // Lock for 30 seconds after 3 failed attempts
+        return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+    } else {
+        const remainingAttempts = 3 - userAttempts.attempts;
+        return res.status(401).json({ error: `Invalid email or password. You have ${remainingAttempts} more attempts.` });
+    }
+}
+
+router.get('/check-session', checkSessionTimeout, (req, res) => {
+    if (req.session.user) {
+        res.status(200).json({ message: 'Session active.' });
+    } else {
+        res.status(401).json({ error: 'Session expired.' });
+    }
 });
 
 

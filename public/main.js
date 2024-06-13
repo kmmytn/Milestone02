@@ -134,13 +134,21 @@ document.getElementById('form_login').addEventListener('submit', function(event)
             } else {
                 alert('Login failed. Please try again.');
             }
+        } else if (xhr.status === 401 || xhr.status === 429) { // Handle invalid email/password and too many attempts
+            const response = JSON.parse(xhr.responseText);
+            if (response.error) {
+                loginError.textContent = response.error;
+                loginError.classList.add('visible');
+            } else {
+                loginError.textContent = 'Invalid email or password.';
+                loginError.classList.add('visible');
+            }
         } else {
-            alert('Invalid email or password.');
-            loginError.textContent = 'User or Password does not match.';
-            loginError.classList.add('visible');
+            alert('An error occurred. Please try again.');
         }
     };
     xhr.send(JSON.stringify(loginData));
 });
+
 
 

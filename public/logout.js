@@ -14,3 +14,47 @@ button.addEventListener('click', function() {
     };
     xhr.send();
 });
+
+// Check session timeout
+let warningTimeout;
+let logoutTimeout;
+
+function resetTimers() {
+    clearTimeout(warningTimeout);
+    clearTimeout(logoutTimeout);
+
+    warningTimeout = setTimeout(() => {
+        alert('You will be logged out in 10 seconds due to inactivity.');
+        
+        logoutTimeout = setTimeout(() => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/logout', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('Session timed out. Please log in again.');
+                    window.location.href = 'index.html';
+                }
+            };
+            xhr.send();
+        }, 10000); // 10 seconds warning period
+    }, 20000); // 20 seconds until warning
+}
+
+// Reset timers on any user interaction
+window.onload = resetTimers;
+document.onmousemove = resetTimers;
+document.onkeypress = resetTimers;
+
+// Check session timeout every 5 seconds
+setInterval(function() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/check-session', true);
+    xhr.onload = function() {
+        if (xhr.status === 401) {
+            alert('Session timed out. Please log in again.');
+            window.location.href = 'index.html';
+        }
+    };
+    xhr.send();
+}, 5000);
