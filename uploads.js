@@ -1,5 +1,9 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const { promisify } = require('util');
+const readFile = promisify(fs.readFile);
+const unlink = promisify(fs.unlink);
 
 // Configure disk storage
 const storage = multer.diskStorage({
@@ -7,7 +11,7 @@ const storage = multer.diskStorage({
         cb(null, './uploads/');
     },
     filename: function(req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname).toLowerCase();
         cb(null, file.fieldname + '-' + uniqueSuffix);
     }
 });
@@ -16,22 +20,8 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     limits: {
-      fileSize: 100 * 1024 * 1024, // Maximum file size in bytes
+        fileSize: 100 * 1024 * 1024, // Maximum file size in bytes
     },
-    fileFilter: function(req, file, cb) {
-        // Allowed extensions
-        const fileTypes = /jpeg|jpg|png/;
-        // Check ext
-        const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
-        // Check mime
-        const mimeType = fileTypes.test(file.mimetype);
-
-        if (extName && mimeType) {
-            cb(null, true);
-        } else {
-            cb(new Error('Upload only.jpeg or.png format is allowed'));
-        }
-    }
 });
 
 module.exports = upload;

@@ -1,15 +1,14 @@
-const container = document.querySelector('.container')
-const btnSignIn = document.querySelector('.btnSign-in')
-const btnSignUp = document.querySelector('.btnSign-up')
+const container = document.querySelector('.container');
+const btnSignIn = document.querySelector('.btnSign-in');
+const btnSignUp = document.querySelector('.btnSign-up');
 
 btnSignIn.addEventListener('click', () => {
-    container.classList.add('active')
-})
+    container.classList.add('active');
+});
 
 btnSignUp.addEventListener('click', () => {
-    container.classList.remove('active')
-})
-
+    container.classList.remove('active');
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const imgError = document.getElementById('img-error');
@@ -20,20 +19,48 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             const fileType = file.type;
 
-            if (fileType!== 'image/jpeg' && fileType!== 'image/png' && fileType!== 'image/jpg') {
-                if (imgError) { // Check if imgError is not null
+            // Function to check file signature
+            const checkFileSignature = (file, callback) => {
+                const reader = new FileReader();
+                reader.onloadend = function(e) {
+                    const arr = (new Uint8Array(e.target.result)).subarray(0, 4);
+                    let header = '';
+                    for (let i = 0; i < arr.length; i++) {
+                        header += arr[i].toString(16);
+                    }
+                    let isValid = false;
+                    switch (header) {
+                        case '89504e47':
+                            isValid = 'image/png';
+                            break;
+                        case 'ffd8ffe0':
+                        case 'ffd8ffe1':
+                        case 'ffd8ffe2':
+                            isValid = 'image/jpeg';
+                            break;
+                        default:
+                            isValid = false; // Or you can set a default invalid value
+                            break;
+                    }
+                    callback(isValid);
+                };
+                reader.readAsArrayBuffer(file);
+            };
+
+            checkFileSignature(file, (isValid) => {
+                if (!isValid) {
                     imgError.textContent = 'Invalid file type. Only JPEG/PNG images allowed.';
                     imgError.classList.add('visible');
                     e.target.value = ''; // Clear the selection
-                }
-            } else {
-                if (imgError) { // Check if imgError is not null
+                } else {
                     imgError.textContent = '';
                     imgError.classList.remove('visible');
+                    const fileName = file.name || 'Choose Profile Photo';
+                    fileLabel.textContent = fileName;
                 }
-                const fileName = file.name || 'Choose Profile Photo';
-                fileLabel.textContent = fileName;
-            }
+            });
+        } else {
+            fileLabel.textContent = 'Choose Profile Photo';
         }
     });
 });
@@ -50,7 +77,7 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
     const phoneNumber = document.getElementById('phone').value;
     const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phoneNumber);
     const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phoneNumber);
-    if (!isValidInternational &&!isValidPhilippine) {
+    if (!isValidInternational && !isValidPhilippine) {
         phoneError.textContent = 'Please enter a valid phone number.';
         phoneError.classList.add('visible');
     } else {
@@ -58,9 +85,16 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
         phoneError.classList.remove('visible');
     }
 
-    // Email validation
-    const email = document.getElementById('emailsignup').value; // Corrected to get value
-    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isValidEmail = (email) => {
+        const atSymbolIndex = email.indexOf('@');
+        if (atSymbolIndex === -1) return false;
+    
+        const localPart = email.slice(0, atSymbolIndex);
+        const domainPart = email.slice(atSymbolIndex + 1);
+    
+        return localPart.length <= 64 && domainPart.length <= 255;
+    };
+
     if (!isValidEmail) {
         emailError.textContent = 'Please enter a valid email address.';
         emailError.classList.add('visible');
@@ -73,10 +107,10 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
     const password = document.getElementById('passwordsignup').value.trim();
     const confirmPassword = document.getElementById('confirmpassword').value.trim();
     const isValidPassword = password === confirmPassword;
-    
+
     // New regex pattern for password validation
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W]).{12,64}$/;
-    
+
     if (!passwordRegex.test(password)) {
         passError.textContent = 'Password must include uppercase, lowercase letters, digits, special characters, and be 12-64 characters long.';
         passError.classList.add('visible');
@@ -89,7 +123,7 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
     }
 
     // Determine if form submission should proceed
-    const shouldSubmit =!phoneError.textContent &&!emailError.textContent &&!passError.textContent;
+    const shouldSubmit = !phoneError.textContent && !emailError.textContent && !passError.textContent;
     if (shouldSubmit) {
         // Proceed with form submission
         const formData = new FormData(this);

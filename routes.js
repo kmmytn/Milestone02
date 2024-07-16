@@ -1,28 +1,46 @@
 const express = require('express');
 const upload = require('./uploads');
 const db = require('./database');
-const router = express.Router();
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { promisify } = require('util');
+const fs = require('fs');
+const path = require('path');
 
-// Example route to get data from the database
-router.get('/data', (req, res) => {
-    let sql = 'SELECT * FROM your_table';
-    db.query(sql, (err, result) => {
-        if (err) throw err;
-        res.send(result);
-    });
-});
+const readFile = promisify(fs.readFile);
+const unlink = promisify(fs.unlink);
 
-router.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-});
+const router = express.Router();
 
-const restrictedNames = ['admin', 'ADMIN'];
+restrictedNames = ['admin', 'ADMIN'];
+
+// Function to check file signature
+const checkFileSignature = async (filePath) => {
+    const buffer = await readFile(filePath);
+    const { fileTypeFromBuffer } = await import('file-type');
+    const type = await fileTypeFromBuffer(buffer);
+    return type;
+};
+
+// Function to validate specific byte sequences
+const validateFileBytes = (buffer, mime) => {
+    // JPEG files start with FF D8
+    const jpegSignature = buffer.slice(0, 2).toString('hex') === 'ffd8';
+    // PNG files start with 89 50 4E 47 0D 0A 1A 0A
+    const pngSignature = buffer.slice(0, 8).toString('hex') === '89504e470d0a1a0a';
+
+    if (mime === 'image/jpeg' && jpegSignature) {
+        return true;
+    }
+    if (mime === 'image/png' && pngSignature) {
+        return true;
+    }
+    return false;
+};
 
 router.post('/signup', upload.single('pfp'), async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup } = req.body;
-    const profilePicturePath = req.file? req.file.path : null; // Handle file upload
+    const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
 
     const normalizedFullName = full_name.toLowerCase();
     if (restrictedNames.includes(normalizedFullName)) {
@@ -31,12 +49,21 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     // Validate phone number
     const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phone_number);
     const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phone_number);
-    if (!isValidInternational &&!isValidPhilippine) {
+    if (!isValidInternational && !isValidPhilippine) {
         return res.status(400).json({ error: 'Please enter a valid phone number.' });
     }
 
     // Validate email
-    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailsignup);
+    const isValidEmail = (email) => {
+        const atSymbolIndex = email.indexOf('@');
+        if (atSymbolIndex === -1) return false;
+    
+        const localPart = email.slice(0, atSymbolIndex);
+        const domainPart = email.slice(atSymbolIndex + 1);
+    
+        return localPart.length <= 64 && domainPart.length <= 255;
+    };
+    
     if (!isValidEmail) {
         return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
@@ -49,11 +76,21 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
 
     // Check if passwords match
     const confirmPassword = req.body.confirmpassword; // Assuming confirmpassword is sent in the request body
-    if (passwordsignup!== confirmPassword) {
+    if (passwordsignup !== confirmPassword) {
         return res.status(400).json({ error: 'Passwords do not match.' });
     }
 
     try {
+        if (profilePicturePath) {
+            const buffer = await readFile(profilePicturePath);
+            const type = await checkFileSignature(profilePicturePath);
+
+            if (!type || !['image/jpeg', 'image/png'].includes(type.mime) || !validateFileBytes(buffer, type.mime)) {
+                await unlink(profilePicturePath); // Remove the invalid file
+                return res.status(400).json({ error: 'Invalid file type. Only JPEG/PNG images allowed.' });
+            }
+        }
+
         const hashedPassword = await bcrypt.hash(passwordsignup, 10);
 
         // Insert user into database
@@ -182,6 +219,5 @@ router.get('/check-session', checkSessionTimeout, (req, res) => {
         res.status(401).json({ error: 'Session expired.' });
     }
 })
-
 
 module.exports = router;
