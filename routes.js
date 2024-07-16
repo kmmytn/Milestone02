@@ -12,7 +12,21 @@ const unlink = promisify(fs.unlink);
 
 const router = express.Router();
 
-restrictedNames = ['admin', 'ADMIN'];
+const restrictedNames = ['admin', 'ADMIN'];
+
+// Configuration for debug mode
+const config = {
+    debug: process.env.DEBUG === 'true', // Read the debug mode from environment variable
+};
+
+// Utility function to handle errors
+const handleError = (res, err, message) => {
+    if (config.debug) {
+        return res.status(500).json({ error: message, stack: err.stack });
+    } else {
+        return res.status(500).json({ error: message });
+    }
+};
 
 // Function to check file signature
 const checkFileSignature = async (filePath) => {
@@ -38,14 +52,26 @@ const validateFileBytes = (buffer, mime) => {
     return false;
 };
 
+// Function to validate email
+const isValidEmail = (email) => {
+    const atSymbolIndex = email.indexOf('@');
+    if (atSymbolIndex === -1) return false;
+
+    const localPart = email.slice(0, atSymbolIndex);
+    const domainPart = email.slice(atSymbolIndex + 1);
+
+    return localPart.length <= 64 && domainPart.length <= 255;
+};
+
 router.post('/signup', upload.single('pfp'), async (req, res) => {
-    const { full_name, emailsignup, phone_number, passwordsignup } = req.body;
+    const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
     const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
 
     const normalizedFullName = full_name.toLowerCase();
     if (restrictedNames.includes(normalizedFullName)) {
         return res.status(400).json({ error: 'The name is not allowed.' });
     }
+
     // Validate phone number
     const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phone_number);
     const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phone_number);
@@ -54,17 +80,7 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 
     // Validate email
-    const isValidEmail = (email) => {
-        const atSymbolIndex = email.indexOf('@');
-        if (atSymbolIndex === -1) return false;
-    
-        const localPart = email.slice(0, atSymbolIndex);
-        const domainPart = email.slice(atSymbolIndex + 1);
-    
-        return localPart.length <= 64 && domainPart.length <= 255;
-    };
-    
-    if (!isValidEmail) {
+    if (!isValidEmail(emailsignup)) {
         return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
 
@@ -75,8 +91,7 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 
     // Check if passwords match
-    const confirmPassword = req.body.confirmpassword; // Assuming confirmpassword is sent in the request body
-    if (passwordsignup !== confirmPassword) {
+    if (passwordsignup !== confirmpassword) {
         return res.status(400).json({ error: 'Passwords do not match.' });
     }
 
@@ -97,18 +112,16 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
         const sql = 'INSERT INTO users (full_name, email, phone_number, password, profile_picture) VALUES (?,?,?,?,?)';
         db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
             if (err) {
-                console.error(err);
-                if (err && err.code === 'ER_DUP_ENTRY') {
+                if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(400).json({ error: 'Email already exists.' });
                 } else {
-                    return res.status(500).json({ error: 'Error signing up.' });
+                    return handleError(res, err, 'Error signing up.');
                 }
             }
             res.status(200).json({ message: 'Signed up successfully.' });
         });
     } catch (hashErr) {
-        console.error(hashErr);
-        return res.status(500).json({ error: 'Failed to hash password.' });
+        return handleError(res, hashErr, 'Failed to hash password.');
     }
 });
 
@@ -123,8 +136,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
         const sql = 'SELECT id, password, full_name FROM users WHERE email = ?';
         db.query(sql, [email], async (err, results) => {
             if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Error logging in.' });
+                return handleError(res, err, 'Error logging in.');
             }
 
             if (results.length === 0) {
@@ -148,8 +160,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
             const sessionSql = 'INSERT INTO sessions (user_id, session_id) VALUES (?, ?)';
             db.query(sessionSql, [user.id, sessionId], (sessionErr) => {
                 if (sessionErr) {
-                    console.error(sessionErr);
-                    return res.status(500).json({ error: 'Error creating session.' });
+                    return handleError(res, sessionErr, 'Error creating session.');
                 }
 
                 res.status(200).json({
@@ -160,8 +171,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
             });
         });
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Server error.' });
+        return handleError(res, err, 'Server error.');
     }
 });
 
@@ -218,6 +228,6 @@ router.get('/check-session', checkSessionTimeout, (req, res) => {
     } else {
         res.status(401).json({ error: 'Session expired.' });
     }
-})
+});
 
 module.exports = router;

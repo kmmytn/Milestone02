@@ -85,17 +85,19 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
         phoneError.classList.remove('visible');
     }
 
+    // Email validation
     const isValidEmail = (email) => {
         const atSymbolIndex = email.indexOf('@');
         if (atSymbolIndex === -1) return false;
-    
+
         const localPart = email.slice(0, atSymbolIndex);
         const domainPart = email.slice(atSymbolIndex + 1);
-    
+
         return localPart.length <= 64 && domainPart.length <= 255;
     };
 
-    if (!isValidEmail) {
+    const emailSignup = document.getElementById('emailsignup').value;
+    if (!isValidEmail(emailSignup)) {
         emailError.textContent = 'Please enter a valid email address.';
         emailError.classList.add('visible');
     } else {
