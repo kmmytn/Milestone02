@@ -80,6 +80,16 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 
     // Validate email
+    const isValidEmail = (email) => {
+        const atSymbolIndex = email.indexOf('@');
+        if (atSymbolIndex === -1) return false;
+
+        const localPart = email.slice(0, atSymbolIndex);
+        const domainPart = email.slice(atSymbolIndex + 1);
+
+        return localPart.length <= 64 && domainPart.length <= 255;
+    };
+    
     if (!isValidEmail(emailsignup)) {
         return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
