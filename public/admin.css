@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    width: 100%;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+.left-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    flex-direction: column;
+    width: 30%;
+    background-color: #FFE7E9;
+}
+
+.feed {
+    width: 70%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 1rem;
+}
+
+textarea {
+    border: 2px solid pink;
+    border-radius: 8px;
+    resize: none;
+    width: 80%;
+    height: 100px;
+}
+
+.feed-error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+#posts-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.post {
+    border: 2px solid pink;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 80%;
+    text-align: justify;
+}
+
+.post-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-btn, .delete-btn {
+    cursor: pointer;
+    color: pink;
+}
+
+.post-text {
+    margin-top: 10px;
+}
+
+.post-details {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-date {
+    font-style: italic;
+}
+
+.post-category {
+    font-weight: bold;
+    cursor: pointer;
+    background-color: pink;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: white;
+}
+
+.btn {
+    background-color: pink;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.bkg {
+    background-color: pink;
+}
