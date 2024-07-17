@@ -7,6 +7,22 @@ button.addEventListener('click', function() {
     xhr.onload = function() {
         if (xhr.status === 200) {
             alert('Logged out successfully.');
+
+            // Clear browser cache
+            if ('caches' in window) {
+                caches.keys().then((names) => {
+                    names.forEach((name) => {
+                        caches.delete(name);
+                    });
+                });
+            }
+
+            // Clear local storage
+            localStorage.clear();
+
+            // Manipulate history to prevent back navigation to authenticated pages
+            history.replaceState(null, null, 'index.html'); // Replace current history entry with login page
+
             window.location.href = 'index.html'; // Redirect to login page
         } else {
             alert('Error logging out. Please try again.');
