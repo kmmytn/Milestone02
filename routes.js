@@ -12,7 +12,6 @@ const unlink = promisify(fs.unlink);
 
 const router = express.Router();
 
-const restrictedNames = ['admin', 'ADMIN'];
 
 // Configuration for debug mode
 const config = {
@@ -63,33 +62,36 @@ const isValidEmail = (email) => {
     return localPart.length <= 64 && domainPart.length <= 255;
 };
 
+const isAdmin = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized. Please log in.' });
+    }
+    const sql = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
+    db.query(sql, [req.session.user.id], (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(403).json({ error: 'Forbidden. You do not have access to this resource.' });
+        }
+        const roles = results.map(role => role.name);
+        if (!roles.includes('admin')) {
+            return res.status(403).json({ error: 'Forbidden. Admin access required.' });
+        }
+        next();
+    });
+};
+
+// Middleware to check if user is logged in
+const isLoggedIn = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized. Please log in.' });
+    }
+    next();
+};
+
 router.post('/signup', upload.single('pfp'), async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
     const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
 
-    const normalizedFullName = full_name.toLowerCase();
-    if (restrictedNames.includes(normalizedFullName)) {
-        return res.status(400).json({ error: 'The name is not allowed.' });
-    }
-
-    // Validate phone number
-    const isValidInternational = /^\+\d{1,3}\s?\(\d{1,3}\)\s?\d{1,3}-\d{1,4}$/.test(phone_number);
-    const isValidPhilippine = /^(09|\+639)\d{9}$/.test(phone_number);
-    if (!isValidInternational && !isValidPhilippine) {
-        return res.status(400).json({ error: 'Please enter a valid phone number.' });
-    }
-
     // Validate email
-    const isValidEmail = (email) => {
-        const atSymbolIndex = email.indexOf('@');
-        if (atSymbolIndex === -1) return false;
-
-        const localPart = email.slice(0, atSymbolIndex);
-        const domainPart = email.slice(atSymbolIndex + 1);
-
-        return localPart.length <= 64 && domainPart.length <= 255;
-    };
-    
     if (!isValidEmail(emailsignup)) {
         return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
@@ -106,16 +108,6 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 
     try {
-        if (profilePicturePath) {
-            const buffer = await readFile(profilePicturePath);
-            const type = await checkFileSignature(profilePicturePath);
-
-            if (!type || !['image/jpeg', 'image/png'].includes(type.mime) || !validateFileBytes(buffer, type.mime)) {
-                await unlink(profilePicturePath); // Remove the invalid file
-                return res.status(400).json({ error: 'Invalid file type. Only JPEG/PNG images allowed.' });
-            }
-        }
-
         const hashedPassword = await bcrypt.hash(passwordsignup, 10);
 
         // Insert user into database
@@ -125,13 +117,71 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(400).json({ error: 'Email already exists.' });
                 } else {
-                    return handleError(res, err, 'Error signing up.');
+                    return res.status(500).json({ error: 'Error signing up.' });
                 }
             }
-            res.status(200).json({ message: 'Signed up successfully.' });
+
+            // Assign user role to the user
+            const userId = result.insertId;
+            const roleSql = 'INSERT INTO user_roles (user_id, role_id) VALUES (?, (SELECT id FROM roles WHERE name = "user"))';
+            db.query(roleSql, [userId], (roleErr) => {
+                if (roleErr) {
+                    return res.status(500).json({ error: 'Error assigning user role.' });
+                }
+                res.status(200).json({ message: 'Signed up successfully.' });
+            });
         });
     } catch (hashErr) {
-        return handleError(res, hashErr, 'Failed to hash password.');
+        return res.status(500).json({ error: 'Failed to hash password.' });
+    }
+});
+
+router.post('/create-admin', isAdmin, upload.single('pfp'), async (req, res) => {
+    const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
+    const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
+
+    // Validate email
+    if (!isValidEmail(emailsignup)) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    // Validate password
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W]).{12,64}$/;
+    if (!passwordRegex.test(passwordsignup)) {
+        return res.status(400).json({ error: 'Password must include uppercase, lowercase letters, digits, special characters, and be 12-64 characters long.' });
+    }
+
+    // Check if passwords match
+    if (passwordsignup !== confirmpassword) {
+        return res.status(400).json({ error: 'Passwords do not match.' });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(passwordsignup, 10);
+
+        // Insert user into database
+        const sql = 'INSERT INTO users (full_name, email, phone_number, password, profile_picture) VALUES (?,?,?,?,?)';
+        db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
+            if (err) {
+                if (err.code === 'ER_DUP_ENTRY') {
+                    return res.status(400).json({ error: 'Email already exists.' });
+                } else {
+                    return res.status(500).json({ error: 'Error creating admin account.' });
+                }
+            }
+
+            // Assign admin role to the user
+            const userId = result.insertId;
+            const roleSql = 'INSERT INTO user_roles (user_id, role_id) VALUES (?, (SELECT id FROM roles WHERE name = "admin"))';
+            db.query(roleSql, [userId], (roleErr) => {
+                if (roleErr) {
+                    return res.status(500).json({ error: 'Error assigning admin role.' });
+                }
+                res.status(200).json({ message: 'Admin account created successfully.' });
+            });
+        });
+    } catch (hashErr) {
+        return res.status(500).json({ error: 'Failed to hash password.' });
     }
 });
 
@@ -173,10 +223,23 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
                     return handleError(res, sessionErr, 'Error creating session.');
                 }
 
-                res.status(200).json({
-                    message: 'Logged in successfully.',
-                    sessionId,
-                    role: user.full_name === 'admin' ? 'admin' : 'user' // Determine role based on full_name
+                // Fetch user roles
+                const roleSql = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
+                db.query(roleSql, [user.id], (roleErr, roleResults) => {
+                    if (roleErr) {
+                        return handleError(res, roleErr, 'Error fetching user roles.');
+                    }
+
+                    const roles = roleResults.map(role => role.name);
+
+                    // Store roles in session
+                    req.session.roles = roles;
+
+                    res.status(200).json({
+                        message: 'Logged in successfully.',
+                        sessionId,
+                        roles // Return roles to the client
+                    });
                 });
             });
         });
@@ -184,6 +247,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
         return handleError(res, err, 'Server error.');
     }
 });
+
 
 router.post('/logout', (req, res) => {
     req.session.destroy();

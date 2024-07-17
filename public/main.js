@@ -168,7 +168,12 @@ document.getElementById('form_login').addEventListener('submit', function(event)
         if (xhr.status === 200) {
             // localStorage.setItem('sessionId', response.sessionId); // Store the session ID
             alert('Logged in successfully.');
-            window.location.href = response.role === 'admin' ? 'admin.html' : 'user.html';
+            
+            if (response.roles.includes('admin')) {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'user.html';
+            }
         } else {
             loginError.textContent = response.error || 'An error occurred. Please try again.';
             loginError.classList.add('visible');
