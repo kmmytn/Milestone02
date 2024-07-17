@@ -136,54 +136,6 @@ router.post('/signup', upload.single('pfp'), async (req, res) => {
     }
 });
 
-router.post('/create-admin', isAdmin, upload.single('pfp'), async (req, res) => {
-    const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
-    const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
-
-    // Validate email
-    if (!isValidEmail(emailsignup)) {
-        return res.status(400).json({ error: 'Please enter a valid email address.' });
-    }
-
-    // Validate password
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[\W]).{12,64}$/;
-    if (!passwordRegex.test(passwordsignup)) {
-        return res.status(400).json({ error: 'Password must include uppercase, lowercase letters, digits, special characters, and be 12-64 characters long.' });
-    }
-
-    // Check if passwords match
-    if (passwordsignup !== confirmpassword) {
-        return res.status(400).json({ error: 'Passwords do not match.' });
-    }
-
-    try {
-        const hashedPassword = await bcrypt.hash(passwordsignup, 10);
-
-        // Insert user into database
-        const sql = 'INSERT INTO users (full_name, email, phone_number, password, profile_picture) VALUES (?,?,?,?,?)';
-        db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
-            if (err) {
-                if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(400).json({ error: 'Email already exists.' });
-                } else {
-                    return res.status(500).json({ error: 'Error creating admin account.' });
-                }
-            }
-
-            // Assign admin role to the user
-            const userId = result.insertId;
-            const roleSql = 'INSERT INTO user_roles (user_id, role_id) VALUES (?, (SELECT id FROM roles WHERE name = "admin"))';
-            db.query(roleSql, [userId], (roleErr) => {
-                if (roleErr) {
-                    return res.status(500).json({ error: 'Error assigning admin role.' });
-                }
-                res.status(200).json({ message: 'Admin account created successfully.' });
-            });
-        });
-    } catch (hashErr) {
-        return res.status(500).json({ error: 'Failed to hash password.' });
-    }
-});
 
 router.post('/login', trackLoginAttempts, async (req, res) => {
     const { email, password } = req.body;
