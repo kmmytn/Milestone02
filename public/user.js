@@ -1,57 +1,97 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Select all elements with the class .post-category
-    var postCategories = document.querySelectorAll('.post-category');
+    const adminForm = document.getElementById('admin-form');
+    const postsContainer = document.getElementById('posts-container');
+    let username = '';
 
-    // Iterate over each element
-    postCategories.forEach(function(postCategory) {
-        // Get the text content of the current element
-        var content = postCategory.textContent.trim();
+    // Fetch user info to get the username
+    fetch('/user-info')
+        .then(response => response.json())
+        .then(user => {
+            username = user.username;
 
-        // Change background color based on content
-        if (content === "Funny") {
-            postCategory.style.backgroundColor = "#BFD58E"; // Greenish color for Funny
-        } else if (content === "Not Funny") {
-            postCategory.style.backgroundColor = "#FF6961"; // Reddish color for Not Funny
-        }
-    });
+            adminForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const tweetContent = document.getElementById('admin-input').value;
+                const price = document.getElementById('price-input').value;
+                const quantity = document.getElementById('quantity-input').value;
 
-    // Function to toggle edit mode
-    function toggleEditMode(event) {
-        const postContainer = event.target.closest('.post');
-        const postText = postContainer.querySelector('.post-text');
-        const originalText = postText.textContent;
+                const feedErrorMessage = document.querySelector('.feed-error-message');
+                feedErrorMessage.classList.remove('visible');
 
-        // Check if a textarea already exists
-        let existingTextarea = document.querySelector('.edit-textarea');
-        if (!existingTextarea) {
-            // Create a new textarea if it doesn't exist
-            existingTextarea = document.createElement('textarea');
-            existingTextarea.value = originalText;
-            existingTextarea.classList.add('edit-textarea');
-            existingTextarea.addEventListener('keydown', handleSave);
-            postContainer.insertBefore(existingTextarea, postText);
-        } else {
-            // Reuse the existing textarea
-            existingTextarea.value = originalText;
-        }
+                if (price.length < 3) {
+                    feedErrorMessage.textContent = "Please input more than 2 numeric characters";
+                    feedErrorMessage.classList.add('visible');
+                    return;
+                }
 
-        // Hide the original post text
-        postText.style.display = 'none';
+                const postData = {
+                    content: tweetContent,
+                    price: price,
+                    quantity: quantity,
+                    status: 'Available'
+                };
+
+                fetch('/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(postData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error:', data.error);
+                    } else {
+                        const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', username);
+                        postsContainer.appendChild(newPost);
+
+                        document.getElementById('admin-input').value = '';
+                        document.getElementById('price-input').value = '';
+                        document.getElementById('quantity-input').value = '';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            fetch('/posts')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(post => {
+                        const newPost = createPostElement(post.id, post.content, post.price, post.quantity, post.status, username);
+                        postsContainer.appendChild(newPost);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        })
+        .catch(error => console.error('Error fetching user info:', error));
+
+    function createPostElement(postId, content, price, quantity, status, username) {
+        const newPost = document.createElement('div');
+        newPost.classList.add('post');
+        newPost.dataset.postId = postId; // Store post ID for future reference
+
+        newPost.innerHTML = `
+            <div class="post-header">
+                <h3>${username}</h3>
+                <div class="action-buttons">
+                    <select title="categories" class="post-category btn bkg">
+                        <option value="Available"${status === 'Available' ? ' selected' : ''}>Available</option>
+                        <option value="Sold"${status === 'Sold' ? ' selected' : ''}>Sold</option>
+                    </select>
+                </div>
+            </div>
+            <p class="post-text">${content}</p>
+            <div class="post-price-quantity">
+                <p>Price: PHP <span class="post-price">${price}</span></p>
+                <p>Quantity: <span class="post-quantity">${quantity}</span></p>
+            </div>
+            <div class="post-details">
+                <p class="post-date">${new Date().toLocaleString()}</p>
+            </div>
+        `;
+
+        return newPost;
     }
-
-    // Function to handle saving changes
-    function handleSave(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            const postContainer = event.target.closest('.post');
-            const postText = postContainer.querySelector('.post-text');
-            postText.textContent = event.target.value;
-            postText.style.display = '';
-            event.target.remove();
-        }
-    }
-
-    // Attach click event listener to edit buttons
-    const editButtons = document.querySelectorAll('.edit-btn');
-    editButtons.forEach(button => button.addEventListener('click', toggleEditMode));
 });
