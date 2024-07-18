@@ -18,30 +18,16 @@
     </div>
     <div class="feed">
         <form id="admin-form">
-            <label for="admin-input">Tweet Something Funny</label><br><br>
-            <textarea id="admin-input" name="admin-input" required></textarea><br>
+            <textarea id="admin-input" name="admin-input" placeholder="Tweet Something Funny" required></textarea><br>
+            <div class="input-group">
+                <input type="number" id="price-input" name="price-input" placeholder="Price (PHP)" required>
+                <input type="number" id="quantity-input" name="quantity-input" placeholder="Quantity" required>
+            </div>
             <p class="feed-error-message">Please input more than 2 numeric characters</p>
             <button class="btn bkg" type="submit">Submit</button>
         </form>
         
         <div id="posts-container">
-            <div class="post">
-                <div class="post-header">
-                    <h3>alexiajanina</h3>
-                    <div class="action-buttons">
-                        <span class="material-icons edit-btn">edit</span>
-                        <span class="material-icons delete-btn">delete</span>
-                    </div>
-                </div>
-                <p class="post-text">What did the O say to the other O? O hi O</p>
-                <div class="post-details">
-                    <p class="post-date">July 17, 2024 4:38PM</p>
-                    <select title="categories" class="post-category btn bkg">
-                        <option value="Funny">Funny</option>
-                        <option value="Not Funny">Not Funny</option>
-                    </select>
-                </div>
-            </div>
         </div>
     </div>
 

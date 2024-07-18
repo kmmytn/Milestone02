@@ -34,6 +34,16 @@ textarea {
     resize: none;
     width: 80%;
     height: 100px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+input[type="number"] {
+    border: 2px solid pink;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
 }
 
 .feed-error-message {
@@ -53,6 +63,7 @@ textarea {
     padding: 1rem;
     width: 80%;
     text-align: justify;
+    margin-bottom: 20px;
 }
 
 .post-header {
@@ -65,6 +76,7 @@ textarea {
 .action-buttons {
     display: flex;
     gap: 10px;
+    align-items: center;
 }
 
 .edit-btn, .delete-btn {
@@ -73,29 +85,50 @@ textarea {
 }
 
 .post-text {
-    margin-top: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .post-details {
     margin-top: 10px;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
 }
 
 .post-date {
     font-style: italic;
+    text-align: right;
+    flex: 1;
 }
 
 .post-category {
     font-weight: bold;
     cursor: pointer;
-    background-color: pink;
     border: none;
     border-radius: 5px;
     padding: 5px 10px;
     color: white;
+}
+
+.post-price-quantity {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.post-price-quantity p {
+    margin: 5px 0;
+}
+
+.input-group {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin: 10px auto;
+}
+
+.input-group input {
+    width: 48%;
 }
 
 .btn {

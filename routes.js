@@ -12,7 +12,6 @@ const unlink = promisify(fs.unlink);
 
 const router = express.Router();
 
-
 // Configuration for debug mode
 const config = {
     debug: process.env.DEBUG === 'true', // Read the debug mode from environment variable
@@ -27,30 +26,6 @@ const handleError = (res, err, message) => {
     }
 };
 
-// Function to check file signature
-const checkFileSignature = async (filePath) => {
-    const buffer = await readFile(filePath);
-    const { fileTypeFromBuffer } = await import('file-type');
-    const type = await fileTypeFromBuffer(buffer);
-    return type;
-};
-
-// Function to validate specific byte sequences
-const validateFileBytes = (buffer, mime) => {
-    // JPEG files start with FF D8
-    const jpegSignature = buffer.slice(0, 2).toString('hex') === 'ffd8';
-    // PNG files start with 89 50 4E 47 0D 0A 1A 0A
-    const pngSignature = buffer.slice(0, 8).toString('hex') === '89504e470d0a1a0a';
-
-    if (mime === 'image/jpeg' && jpegSignature) {
-        return true;
-    }
-    if (mime === 'image/png' && pngSignature) {
-        return true;
-    }
-    return false;
-};
-
 // Function to validate email
 const isValidEmail = (email) => {
     const atSymbolIndex = email.indexOf('@');
@@ -62,29 +37,25 @@ const isValidEmail = (email) => {
     return localPart.length <= 64 && domainPart.length <= 255;
 };
 
+const isAuthenticated = (req, res, next) => {
+    if (req.session.user) {
+        return next();
+    }
+    res.status(401).json({ error: 'Unauthorized' });
+};
+
+// Middleware to check if the user is an admin
 const isAdmin = (req, res, next) => {
     if (!req.session.user) {
-        return res.status(401).json({ error: 'Unauthorized. Please log in.' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
-    const sql = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
-    db.query(sql, [req.session.user.id], (err, results) => {
-        if (err || results.length === 0) {
-            return res.status(403).json({ error: 'Forbidden. You do not have access to this resource.' });
-        }
-        const roles = results.map(role => role.name);
-        if (!roles.includes('admin')) {
+    const query = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
+    db.query(query, [req.session.user.id], (err, results) => {
+        if (err || results.length === 0 || !results.some(role => role.name === 'admin')) {
             return res.status(403).json({ error: 'Forbidden. Admin access required.' });
         }
         next();
     });
-};
-
-// Middleware to check if user is logged in
-const isLoggedIn = (req, res, next) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Unauthorized. Please log in.' });
-    }
-    next();
 };
 
 router.post('/signup', upload.single('pfp'), async (req, res) => {
@@ -199,6 +170,70 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
         return handleError(res, err, 'Server error.');
     }
 });
+
+router.get('/posts', isAuthenticated, (req, res) => {
+    const query = 'SELECT * FROM posts';
+    db.query(query, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+        res.json(results);
+    });
+});
+
+router.post('/posts', isAuthenticated, (req, res) => {
+    const { content, price, quantity, status } = req.body;
+
+    console.log('Received post data:', { content, price, quantity, status }); // Log the received data
+
+    const query = 'INSERT INTO posts (user_id, content, price, quantity, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())';
+    db.query(query, [req.session.user.id, content, price, quantity, status], (err, result) => {
+        if (err) {
+            console.error('Database error:', err); // Log database errors
+            return res.status(500).json({ error: 'Database query error' });
+        }
+        res.json({ message: 'Post created successfully', postId: result.insertId });
+    });
+});
+
+router.put('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
+    const { id } = req.params;
+    const { content, price, quantity, status } = req.body;
+    const query = 'UPDATE posts SET content = ?, price = ?, quantity = ?, status = ? WHERE id = ?';
+    db.query(query, [content, price, quantity, status, id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+        res.json({ message: 'Post updated successfully' });
+    });
+});
+
+router.delete('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
+    const { id } = req.params;
+    const query = 'DELETE FROM posts WHERE id = ?';
+    db.query(query, [id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+        res.json({ message: 'Post deleted successfully' });
+    });
+});
+
+router.get('/user-info', isAuthenticated, (req, res) => {
+    const userId = req.session.user.id;
+    const query = 'SELECT full_name FROM users WHERE id = ?';
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+        if (results.length > 0) {
+            res.json({ username: results[0].full_name });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    });
+});
+
 
 
 router.post('/logout', (req, res) => {
