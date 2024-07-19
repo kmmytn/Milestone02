@@ -151,4 +151,18 @@ document.addEventListener("DOMContentLoaded", function() {
 
         return newPost;
     }
+
+    fetch('/check-session')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error || !data.roles.includes('admin')) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('content').style.display = 'block';
+            }
+        })
+        .catch(() => {
+            window.location.href = 'index.html';
+        });
+
 });

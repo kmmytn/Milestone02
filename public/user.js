@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <div class="post-header">
                 <h3>${username}</h3>
                 <div class="action-buttons">
-                    <select title="categories" class="post-category btn bkg">
+                    <select title="categories" class="post-category btn bkg" onchange="updatePostStatus(${postId}, this.value)">
                         <option value="Available"${status === 'Available' ? ' selected' : ''}>Available</option>
                         <option value="Sold"${status === 'Sold' ? ' selected' : ''}>Sold</option>
                     </select>
@@ -94,4 +94,39 @@ document.addEventListener("DOMContentLoaded", function() {
 
         return newPost;
     }
+
+    fetch('/check-session')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error || !data.roles.includes('user')) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('content').style.display = 'block';
+            }
+        })
+        .catch(() => {
+            window.location.href = 'index.html';
+        });
+
 });
+
+// Function to update post status
+function updatePostStatus(postId, newStatus) {
+    fetch(`/update-post-status/${postId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error('Error:', data.error);
+        } else {
+            console.log('Post status updated successfully');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+

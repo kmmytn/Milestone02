@@ -213,7 +213,7 @@ router.delete('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
     const query = 'DELETE FROM posts WHERE id = ?';
     db.query(query, [id], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: 'Database query error' });
+            return res.status (500).json({ error: 'Database query error' });
         }
         res.json({ message: 'Post deleted successfully' });
     });
@@ -234,7 +234,48 @@ router.get('/user-info', isAuthenticated, (req, res) => {
     });
 });
 
+router.put('/update-post-status/:id', isAuthenticated, (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
 
+    const query = 'UPDATE posts SET status = ? WHERE id = ?';
+    db.query(query, [status, id], (err, result) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database query error' });
+        }
+        res.json({ message: 'Post status updated successfully' });
+    });
+});
+
+// Middleware to check if the user is an admin
+const isAdminPage = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const query = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
+    db.query(query, [req.session.user.id], (err, results) => {
+        if (err || results.length === 0 || !results.some(role => role.name === 'admin')) {
+            return res.status(403).json({ error: 'Forbidden. Admin access required.' });
+        }
+        next();
+    });
+};
+
+// Middleware to check if the user is authenticated
+const isUserPage = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+};
+
+router.get('/admin.html', isAdminPage, (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+router.get('/user.html', isUserPage, (req, res) => {
+    res.sendFile(path.join(__dirname, 'user.html'));
+});
 
 router.post('/logout', (req, res) => {
     req.session.destroy();
@@ -285,7 +326,7 @@ function handleFailedLoginAttempt(req, res) {
 
 router.get('/check-session', checkSessionTimeout, (req, res) => {
     if (req.session.user) {
-        res.status(200).json({ message: 'Session active.' });
+        res.status(200).json({ message: 'Session active.', roles: req.session.roles});
     } else {
         res.status(401).json({ error: 'Session expired.' });
     }
