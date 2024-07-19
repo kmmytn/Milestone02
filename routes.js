@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const upload = require('./uploads');
 const db = require('./database');
@@ -6,22 +7,28 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
+const logger = require('./logger');
 
 const readFile = promisify(fs.readFile);
 const unlink = promisify(fs.unlink);
 
 const router = express.Router();
 
+
 // Configuration for debug mode
 const config = {
-    debug: process.env.DEBUG === 'true', // Read the debug mode from environment variable
+    debug: process.env.DEBUG === 'true'
 };
+
+console.log(`Debug mode is ${config.debug}`);
 
 // Utility function to handle errors
 const handleError = (res, err, message) => {
     if (config.debug) {
+        logger.error(`${message}: ${err.stack}`);
         return res.status(500).json({ error: message, stack: err.stack });
     } else {
+        logger.error(`${message}: ${err.message}`);
         return res.status(500).json({ error: message });
     }
 };
@@ -120,9 +127,10 @@ router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
         db.query(sql, [full_name, emailsignup, phone_number, hashedPassword, profilePicturePath], (err, result) => {
             if (err) {
                 if (err.code === 'ER_DUP_ENTRY') {
+                    logger.warn(`Signup attempt with existing email: ${emailsignup}`);
                     return res.status(400).json({ error: 'Email already exists.' });
                 } else {
-                    return res.status(500).json({ error: 'Error signing up.' });
+                    return handleError(res, err, 'Error signing up.');
                 }
             }
 
@@ -131,13 +139,14 @@ router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
             const roleSql = 'INSERT INTO user_roles (user_id, role_id) VALUES (?, (SELECT id FROM roles WHERE name = "user"))';
             db.query(roleSql, [userId], (roleErr) => {
                 if (roleErr) {
-                    return res.status(500).json({ error: 'Error assigning user role.' });
+                    return handleError(res, roleErr, 'Error assigning user role.');
                 }
+                logger.info(`User signed up successfully: ${emailsignup}`);
                 res.status(200).json({ message: 'Signed up successfully.' });
             });
         });
     } catch (hashErr) {
-        return res.status(500).json({ error: 'Failed to hash password.' });
+        return handleError(res, hashErr, 'Failed to hash password.');
     }
 });
 
@@ -192,6 +201,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
                     // Store roles in session
                     req.session.roles = roles;
 
+                    logger.info(`User logged in successfully: ${email}`);
                     res.status(200).json({
                         message: 'Logged in successfully.',
                         sessionId,
@@ -213,7 +223,7 @@ router.get('/posts', isAuthenticated, (req, res) => {
     `;
     db.query(query, (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Database query error' });
+            return handleError(res, err, 'Database query error');
         }
         res.json(results);
     });
@@ -222,20 +232,20 @@ router.get('/posts', isAuthenticated, (req, res) => {
 router.post('/posts', isAuthenticated, (req, res) => {
     const { content, price, quantity, status } = req.body;
 
-    console.log('Received post data:', { content, price, quantity, status }); // Log the received data
+    logger.info('Received post data:', { content, price, quantity, status }); // Log the received data
 
     const query = 'INSERT INTO posts (user_id, content, price, quantity, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())';
     db.query(query, [req.session.user.id, content, price, quantity, status], (err, result) => {
         if (err) {
-            console.error('Database error:', err); // Log database errors
-            return res.status(500).json({ error: 'Database query error' });
+            logger.error('Database error:', err); // Log database errors
+            return handleError(res, err, 'Database query error');
         }
 
         // Fetch the username of the user who created the post
         const fetchUserQuery = 'SELECT full_name as username FROM users WHERE id = ?';
         db.query(fetchUserQuery, [req.session.user.id], (userErr, userResult) => {
             if (userErr) {
-                return res.status(500).json({ error: 'Database query error' });
+                return handleError(res, userErr, 'Database query error');
             }
 
             const username = userResult[0].username;
@@ -250,7 +260,7 @@ router.put('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
     const query = 'UPDATE posts SET content = ?, price = ?, quantity = ?, status = ? WHERE id = ?';
     db.query(query, [content, price, quantity, status, id], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: 'Database query error' });
+            return handleError(res, err, 'Database query error');
         }
         res.json({ message: 'Post updated successfully' });
     });
@@ -262,7 +272,7 @@ router.delete('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
     const query = 'DELETE FROM posts WHERE id = ?';
     db.query(query, [id], (err, result) => {
         if (err) {
-            return res.status (500).json({ error: 'Database query error' });
+            return handleError(res, err, 'Database query error');
         }
         res.json({ message: 'Post deleted successfully' });
     });
@@ -275,7 +285,7 @@ router.put('/update-post-status/:id', isAuthenticated, (req, res) => {
     const query = 'UPDATE posts SET status = ? WHERE id = ?';
     db.query(query, [status, id], (err, result) => {
         if (err) {
-            return res.status(500).json({ error: 'Database query error' });
+            return handleError(res, err, 'Database query error');
         }
         res.json({ message: 'Post status updated successfully' });
     });
@@ -313,14 +323,31 @@ router.get('/user.html', isUserPage, (req, res) => {
 
 router.post('/logout', (req, res) => {
     req.session.destroy();
+    logger.info(`User logged out`);
     return res.status(200).json({ message: 'Logged out successfully.' });
 });
+
+router.get('/test-error', (req, res) => {
+    throw new Error('Test error for demonstration');
+});
+
+router.get('/test-db-error', (req, res) => {
+    const query = 'SELECT * FROM non_existing_table'; // This will cause a database error
+    db.query(query, (err, results) => {
+        if (err) {
+            return handleError(res, err, 'Database query error');
+        }
+        res.json(results);
+    });
+});
+
 
 // Middleware to check session timeout
 function checkSessionTimeout(req, res, next) {
     if (req.session.user) {
         if (Date.now() - req.session.lastActivity > 30000) { // 30 seconds
             req.session.destroy();
+            logger.warn('Session timed out');
             return res.status(401).json({ error: 'Session timed out. Please log in again.' });
         } else {
             req.session.lastActivity = Date.now();
@@ -340,6 +367,7 @@ function trackLoginAttempts(req, res, next) {
     }
     const userAttempts = req.session.loginAttempts[ip];
     if (userAttempts.lockUntil && userAttempts.lockUntil > Date.now()) {
+        logger.warn(`Too many login attempts from IP: ${ip}`);
         return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
     }
     next();
@@ -351,6 +379,7 @@ function handleFailedLoginAttempt(req, res) {
     userAttempts.attempts += 1;
     if (userAttempts.attempts >= 3) {
         userAttempts.lockUntil = Date.now() + 30000; // Lock for 30 seconds after 3 failed attempts
+        logger.warn(`IP ${ip} locked due to too many login attempts`);
         return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
     } else {
         const remainingAttempts = 3 - userAttempts.attempts;
@@ -365,6 +394,5 @@ router.get('/check-session', checkSessionTimeout, (req, res) => {
         res.status(401).json({ error: 'Session expired.' });
     }
 });
-
 
 module.exports = router;

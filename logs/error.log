@@ -1,0 +1,1 @@
+2024-07-19T14:11:27.905Z [error]: Database query error: ER_NO_SUCH_TABLE: Table 'cssecdv.non_existing_table' doesn't exist

@@ -1,0 +1,18 @@
+2024-07-19T13:47:27.979Z info: HTTPS Server listening at https://localhost:3000
+2024-07-19T13:47:48.458Z info: User logged in successfully: admin@gmail.com
+2024-07-19T13:47:51.791Z info: User logged out
+2024-07-19T14:01:58.780Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:01:58.798Z [info]: Connected to the database.
+2024-07-19T14:02:54.543Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:02:54.553Z [info]: Connected to the database.
+2024-07-19T14:03:41.143Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:03:41.154Z [info]: Connected to the database.
+2024-07-19T14:05:40.749Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:05:40.759Z [info]: Connected to the database.
+2024-07-19T14:07:34.598Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:07:34.609Z [info]: Connected to the database.
+2024-07-19T14:10:28.513Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:10:28.523Z [info]: Connected to the database.
+2024-07-19T14:11:00.714Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-19T14:11:00.732Z [info]: Connected to the database.
+2024-07-19T14:11:27.905Z [error]: Database query error: ER_NO_SUCH_TABLE: Table 'cssecdv.non_existing_table' doesn't exist
