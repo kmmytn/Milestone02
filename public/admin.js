@@ -34,12 +34,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     const price = document.getElementById('price-input').value;
                     const quantity = document.getElementById('quantity-input').value;
 
-                    const feedErrorMessage = document.querySelector('.feed-error-message');
-                    feedErrorMessage.classList.remove('visible');
 
                     if (price.length < 3) {
                         feedErrorMessage.textContent = "Please input more than 2 numeric characters";
-                        feedErrorMessage.classList.add('visible');
+                        feedErrorMessage.classList.remove('hidden');
                         return;
                     }
 

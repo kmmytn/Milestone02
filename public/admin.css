@@ -49,6 +49,7 @@ input[type="number"] {
 .feed-error-message {
     color: red;
     margin-top: 10px;
+    visibility: hidden;
 }
 
 #posts-container {
