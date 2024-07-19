@@ -58,7 +58,39 @@ const isAdmin = (req, res, next) => {
     });
 };
 
-router.post('/signup', upload.single('pfp'), async (req, res) => {
+const validateFile = async (req, res, next) => {
+    // Check if a file is provided
+    if (!req.file) {
+        return res.status(400).json({ error: 'File is required' });
+    }
+
+    try {
+        // Read the uploaded file as a buffer
+        const buffer = await fs.promises.readFile(req.file.path);
+
+        // Dynamically import the 'file-type' library
+        const { fileTypeFromBuffer } = await import('file-type');
+
+        // Determine the file type from the buffer
+        const type = await fileTypeFromBuffer(buffer);
+
+        // Define valid MIME types
+        const validMimeTypes = ['image/jpeg', 'image/png'];
+
+        // Check if the detected file type is valid
+        if (!type || !validMimeTypes.includes(type.mime)) {
+            return res.status(400).json({ error: 'Invalid file type. Only JPEG/PNG images allowed.' });
+        }
+
+        // Proceed to the next middleware function if the file is valid
+        next();
+    } catch (err) {
+        // Handle any errors that occur during file validation
+        return handleError(res, err, 'Error validating file.');
+    }
+};
+
+router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
     const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
 

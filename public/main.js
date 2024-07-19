@@ -19,46 +19,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             const fileType = file.type;
 
-            // Function to check file signature
-            const checkFileSignature = (file, callback) => {
-                const reader = new FileReader();
-                reader.onloadend = function(e) {
-                    const arr = (new Uint8Array(e.target.result)).subarray(0, 4);
-                    let header = '';
-                    for (let i = 0; i < arr.length; i++) {
-                        header += arr[i].toString(16);
-                    }
-                    let isValid = false;
-                    switch (header) {
-                        case '89504e47':
-                            isValid = 'image/png';
-                            break;
-                        case 'ffd8ffe0':
-                        case 'ffd8ffe1':
-                        case 'ffd8ffe2':
-                            isValid = 'image/jpeg';
-                            break;
-                        default:
-                            isValid = false; // Or you can set a default invalid value
-                            break;
-                    }
-                    callback(isValid);
-                };
-                reader.readAsArrayBuffer(file);
-            };
-
-            checkFileSignature(file, (isValid) => {
-                if (!isValid) {
-                    imgError.textContent = 'Invalid file type. Only JPEG/PNG images allowed.';
-                    imgError.classList.add('visible');
-                    e.target.value = ''; // Clear the selection
-                } else {
-                    imgError.textContent = '';
-                    imgError.classList.remove('visible');
-                    const fileName = file.name || 'Choose Profile Photo';
-                    fileLabel.textContent = fileName;
-                }
-            });
+            // Basic MIME type check
+            if (fileType !== 'image/jpeg' && fileType !== 'image/png') {
+                imgError.textContent = 'Invalid file type. Only JPEG/PNG images allowed.';
+                imgError.classList.add('visible');
+                e.target.value = ''; // Clear the selection
+            } else {
+                imgError.textContent = '';
+                imgError.classList.remove('visible');
+                const fileName = file.name || 'Choose Profile Photo';
+                fileLabel.textContent = fileName;
+            }
         } else {
             fileLabel.textContent = 'Choose Profile Photo';
         }
@@ -166,7 +137,6 @@ document.getElementById('form_login').addEventListener('submit', function(event)
     xhr.onload = function() {
         const response = JSON.parse(xhr.responseText);
         if (xhr.status === 200) {
-            // localStorage.setItem('sessionId', response.sessionId); // Store the session ID
             alert('Logged in successfully.');
             
             if (response.roles.includes('admin')) {
