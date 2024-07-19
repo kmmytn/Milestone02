@@ -79,6 +79,7 @@ const validateFile = async (req, res, next) => {
 
         // Check if the detected file type is valid
         if (!type || !validMimeTypes.includes(type.mime)) {
+            await unlink(req.file.path);
             return res.status(400).json({ error: 'Invalid file type. Only JPEG/PNG images allowed.' });
         }
 
