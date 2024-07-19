@@ -91,6 +91,7 @@ const validateFile = async (req, res, next) => {
     }
 };
 
+
 router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
     const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
@@ -205,7 +206,11 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
 });
 
 router.get('/posts', isAuthenticated, (req, res) => {
-    const query = 'SELECT * FROM posts';
+    const query = `
+        SELECT posts.id, posts.content, posts.price, posts.quantity, posts.status, posts.created_at, users.full_name as username
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+    `;
     db.query(query, (err, results) => {
         if (err) {
             return res.status(500).json({ error: 'Database query error' });
@@ -225,7 +230,17 @@ router.post('/posts', isAuthenticated, (req, res) => {
             console.error('Database error:', err); // Log database errors
             return res.status(500).json({ error: 'Database query error' });
         }
-        res.json({ message: 'Post created successfully', postId: result.insertId });
+
+        // Fetch the username of the user who created the post
+        const fetchUserQuery = 'SELECT full_name as username FROM users WHERE id = ?';
+        db.query(fetchUserQuery, [req.session.user.id], (userErr, userResult) => {
+            if (userErr) {
+                return res.status(500).json({ error: 'Database query error' });
+            }
+
+            const username = userResult[0].username;
+            res.json({ message: 'Post created successfully', postId: result.insertId, username });
+        });
     });
 });
 
@@ -249,21 +264,6 @@ router.delete('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
             return res.status (500).json({ error: 'Database query error' });
         }
         res.json({ message: 'Post deleted successfully' });
-    });
-});
-
-router.get('/user-info', isAuthenticated, (req, res) => {
-    const userId = req.session.user.id;
-    const query = 'SELECT full_name FROM users WHERE id = ?';
-    db.query(query, [userId], (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: 'Database query error' });
-        }
-        if (results.length > 0) {
-            res.json({ username: results[0].full_name });
-        } else {
-            res.status(404).json({ error: 'User not found' });
-        }
     });
 });
 
@@ -359,10 +359,11 @@ function handleFailedLoginAttempt(req, res) {
 
 router.get('/check-session', checkSessionTimeout, (req, res) => {
     if (req.session.user) {
-        res.status(200).json({ message: 'Session active.', roles: req.session.roles});
+        res.status(200).json({ message: 'Session active.', roles: req.session.roles, userId: req.session.user.id });
     } else {
         res.status(401).json({ error: 'Session expired.' });
     }
 });
+
 
 module.exports = router;

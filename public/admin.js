@@ -1,72 +1,87 @@
 document.addEventListener("DOMContentLoaded", function() {
     const adminForm = document.getElementById('admin-form');
     const postsContainer = document.getElementById('posts-container');
-    let username = '';
+    let currentUserId = null;
 
-    // Fetch user info to get the username
-    fetch('/user-info')
+    // Function to fetch and display posts
+    function fetchAndDisplayPosts() {
+        fetch('/posts')
+            .then(response => response.json())
+            .then(data => {
+                postsContainer.innerHTML = ''; // Clear existing posts
+                data.forEach(post => {
+                    const newPost = createPostElement(post.id, post.content, post.price, post.quantity, post.status, post.username);
+                    postsContainer.appendChild(newPost);
+                });
+            })
+            .catch(error => console.error('Error fetching posts:', error));
+    }
+
+    // Session check
+    fetch('/check-session')
         .then(response => response.json())
-        .then(user => {
-            username = user.username;
+        .then(data => {
+            if (data.error || !data.roles.includes('admin')) {
+                window.location.href = 'index.html';
+            } else {
+                document.body.classList.remove('hidden');
+                currentUserId = data.userId; // Get user ID from session check
 
-            adminForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                
-                const tweetContent = document.getElementById('admin-input').value;
-                const price = document.getElementById('price-input').value;
-                const quantity = document.getElementById('quantity-input').value;
+                adminForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
 
-                const feedErrorMessage = document.querySelector('.feed-error-message');
-                feedErrorMessage.classList.remove('visible');
+                    const tweetContent = document.getElementById('admin-input').value;
+                    const price = document.getElementById('price-input').value;
+                    const quantity = document.getElementById('quantity-input').value;
 
-                if (price.length < 3) {
-                    feedErrorMessage.textContent = "Please input more than 2 numeric characters";
-                    feedErrorMessage.classList.add('visible');
-                    return;
-                }
+                    const feedErrorMessage = document.querySelector('.feed-error-message');
+                    feedErrorMessage.classList.remove('visible');
 
-                const postData = {
-                    content: tweetContent,
-                    price: price,
-                    quantity: quantity,
-                    status: 'Available'
-                };
-
-                fetch('/posts', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(postData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error:', data.error);
-                    } else {
-                        const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', username);
-                        postsContainer.appendChild(newPost);
-
-                        document.getElementById('admin-input').value = '';
-                        document.getElementById('price-input').value = '';
-                        document.getElementById('quantity-input').value = '';
+                    if (price.length < 3) {
+                        feedErrorMessage.textContent = "Please input more than 2 numeric characters";
+                        feedErrorMessage.classList.add('visible');
+                        return;
                     }
-                })
-                .catch(error => console.error('Error:', error));
-            });
 
-            fetch('/posts')
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(post => {
-                        const newPost = createPostElement(post.id, post.content, post.price, post.quantity, post.status, username);
-                        postsContainer.appendChild(newPost);
-                    });
-                })
-                .catch(error => console.error('Error:', error));
+                    const postData = {
+                        content: tweetContent,
+                        price: price,
+                        quantity: quantity,
+                        status: 'Available'
+                    };
+
+                    fetch('/posts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(postData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            console.error('Error:', data.error);
+                        } else {
+                            const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', data.username);
+                            postsContainer.appendChild(newPost);
+
+                            document.getElementById('admin-input').value = '';
+                            document.getElementById('price-input').value = '';
+                            document.getElementById('quantity-input').value = '';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+
+                // Fetch and display posts initially
+                fetchAndDisplayPosts();
+            }
         })
-        .catch(error => console.error('Error fetching user info:', error));
+        .catch(() => {
+            window.location.href = 'index.html';
+        });
 
+    // Function to create post element
     function createPostElement(postId, content, price, quantity, status, username) {
         const newPost = document.createElement('div');
         newPost.classList.add('post');
@@ -151,16 +166,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
         return newPost;
     }
-
-    fetch('/check-session')
-        .then(response => response.json())
-        .then(data => {
-            if (data.error || !data.roles.includes('admin')) {
-                window.location.href = 'index.html';
-            }
-        })
-        .catch(() => {
-            window.location.href = 'index.html';
-        });
-
 });
