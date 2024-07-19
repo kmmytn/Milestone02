@@ -157,8 +157,6 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.error || !data.roles.includes('admin')) {
                 window.location.href = 'index.html';
-            } else {
-                document.getElementById('content').style.display = 'block';
             }
         })
         .catch(() => {

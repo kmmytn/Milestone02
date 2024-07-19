@@ -100,8 +100,6 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.error || !data.roles.includes('user')) {
                 window.location.href = 'index.html';
-            } else {
-                document.getElementById('content').style.display = 'block';
             }
         })
         .catch(() => {
