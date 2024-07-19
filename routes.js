@@ -256,6 +256,7 @@ router.put('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
     });
 });
 
+
 router.delete('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
     const { id } = req.params;
     const query = 'DELETE FROM posts WHERE id = ?';

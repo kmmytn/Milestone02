@@ -34,12 +34,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     const price = document.getElementById('price-input').value;
                     const quantity = document.getElementById('quantity-input').value;
 
-                    if (price.length < 3) {
-                        feedErrorMessage.textContent = "Please input more than 2 numeric characters";
-                        feedErrorMessage.classList.remove('hidden');
-                        return;
-                    }
-
                     const postData = {
                         content: tweetContent,
                         price: price,
@@ -103,6 +97,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 <p class="post-date">${new Date().toLocaleString()}</p>
             </div>
         `;
+
+        // Update status logic
+        const statusDropdown = newPost.querySelector('.post-category');
+        statusDropdown.addEventListener('change', () => {
+            fetch(`/update-post-status/${postId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: statusDropdown.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error updating status:', data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
         return newPost;
     }
 });
