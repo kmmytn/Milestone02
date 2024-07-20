@@ -138,6 +138,9 @@ document.getElementById('form_login').addEventListener('submit', function(event)
         const response = JSON.parse(xhr.responseText);
         if (xhr.status === 200) {
             alert('Logged in successfully.');
+            // CLEAR OUT FIELDS HERE
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
             
             if (response.roles.includes('admin')) {
                 window.location.href = 'admin.html';
