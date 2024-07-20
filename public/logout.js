@@ -1,3 +1,27 @@
+let currentUserEmail = null; // Global variable to store current user email
+
+// Function to send log messages to the server
+function sendLog(type, email, message) {
+    fetch('/log', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            type: type,
+            email: email,
+            message: message,
+            timestamp: new Date().toISOString()
+        })
+    }).catch(error => console.error('Error sending log:', error));
+}
+
+// Log actions for authentication, transactions, and administrative actions
+function logAuthenticationAction(email, action) {
+    sendLog('authentication', email, `User performed authentication action: ${action}`);
+}
+
+// Logout button functionality
 const button = document.querySelector('.logoutbtn');
 
 button.addEventListener('click', function() {
@@ -7,6 +31,7 @@ button.addEventListener('click', function() {
     xhr.onload = function() {
         if (xhr.status === 200) {
             alert('Logged out successfully.');
+            logAuthenticationAction(currentUserEmail, 'User logged out successfully');
 
             // Clear browser cache
             if ('caches' in window) {
@@ -26,6 +51,7 @@ button.addEventListener('click', function() {
             window.location.href = 'index.html'; // Redirect to login page
         } else {
             alert('Error logging out. Please try again.');
+            logAuthenticationAction(currentUserEmail, 'Logout error');
         }
     };
     xhr.send();
@@ -49,6 +75,7 @@ function resetTimers() {
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     alert('Session timed out. Please log in again.');
+                    logAuthenticationAction(currentUserEmail, 'Session timed out');
                     window.location.href = 'index.html';
                 }
             };
@@ -69,6 +96,7 @@ setInterval(function() {
     xhr.onload = function() {
         if (xhr.status === 401) {
             alert('Session timed out. Please log in again.');
+            logAuthenticationAction(currentUserEmail, 'Session timed out');
             window.location.href = 'index.html';
         }
     };

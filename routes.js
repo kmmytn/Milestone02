@@ -327,19 +327,19 @@ router.post('/logout', (req, res) => {
     return res.status(200).json({ message: 'Logged out successfully.' });
 });
 
-router.get('/test-error', (req, res) => {
-    throw new Error('Test error for demonstration');
+router.post('/log', (req, res) => {
+    const { type, email, message, timestamp } = req.body;
+    logger.log({
+        level: 'info',
+        message: `${type} - ${email}: ${message}`,
+        timestamp: timestamp
+    });
+
+    console.log('log data:', req.body);  // Log to console for debugging
+
+    res.status(200).send('Log received');
 });
 
-router.get('/test-db-error', (req, res) => {
-    const query = 'SELECT * FROM non_existing_table'; // This will cause a database error
-    db.query(query, (err, results) => {
-        if (err) {
-            return handleError(res, err, 'Database query error');
-        }
-        res.json(results);
-    });
-});
 
 
 // Middleware to check session timeout

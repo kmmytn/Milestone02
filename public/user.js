@@ -1,9 +1,34 @@
+// Function to send log messages to the server
+function sendLog(type, email, message) {
+    fetch('/log', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            type: type,
+            email: email,
+            message: message,
+            timestamp: new Date().toISOString()
+        })
+    }).catch(error => console.error('Error sending log:', error));
+}
+
+// Log actions for authentication, transactions, and administrative actions
+function logAuthenticationAction(email, action) {
+    sendLog('authentication', email, `User performed authentication action: ${action}`);
+}
+
+function logTransactionAction(email, action) {
+    sendLog('transaction', email, `User performed transaction action: ${action}`);
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     const adminForm = document.getElementById('admin-form');
     const postsContainer = document.getElementById('posts-container');
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
-    let currentUserId = null;
+    let currentUserEmail = null;
 
     // Character count update
     adminInput.addEventListener('input', () => {
@@ -21,8 +46,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     const newPost = createPostElement(post.id, sanitizeInput(post.content), post.price, post.quantity, post.status, sanitizeInput(post.username));
                     postsContainer.appendChild(newPost);
                 });
+                currentUserEmail = data.email;
+                logTransactionAction(currentUserEmail, 'Fetched and displayed posts');
             })
-            .catch(error => console.error('Error fetching posts:', error));
+            .catch(error => {
+                console.error('Error fetching posts:', error);
+                logTransactionAction(currentUserEmail, 'Error fetching posts');
+            });
     }
 
     // Session check
@@ -34,6 +64,8 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 document.body.classList.remove('hidden');
                 currentUserId = data.userId; // Get user ID from session check
+                currentUserEmail = data.email; // Get user email from session check
+                logAuthenticationAction(currentUserEmail, 'Session check passed');
 
                 adminForm.addEventListener('submit', function(event) {
                     event.preventDefault();
@@ -44,11 +76,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
                     if (isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
                         alert('Please enter valid numeric values for price and quantity.');
+                        logTransactionAction(currentUserEmail, 'Invalid price or quantity entered');
                         return;
                     }
 
                     if (tweetContent.length > 250) {
                         alert('Tweet content must be 250 characters or less.');
+                        logTransactionAction(currentUserEmail, 'Tweet content exceeded 250 characters');
                         return;
                     }
 
@@ -58,6 +92,8 @@ document.addEventListener("DOMContentLoaded", function() {
                         quantity: quantity,
                         status: 'Available'
                     };
+
+                    logTransactionAction(currentUserEmail, 'Sending post data: ' + JSON.stringify(postData));
 
                     fetch('/posts', {
                         method: 'POST',
@@ -70,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     .then(data => {
                         if (data.error) {
                             console.error('Error:', data.error);
+                            logTransactionAction(currentUserEmail, 'Error creating post');
                         } else {
                             const newPost = createPostElement(data.postId, sanitizeInput(tweetContent), price, quantity, 'Available', sanitizeInput(data.username));
                             postsContainer.appendChild(newPost);
@@ -78,9 +115,13 @@ document.addEventListener("DOMContentLoaded", function() {
                             document.getElementById('price-input').value = '';
                             document.getElementById('quantity-input').value = '';
                             charCount.textContent = '250 characters remaining';
+                            logTransactionAction(currentUserEmail, 'Post created successfully');
                         }
                     })
-                    .catch(error => console.error('Error:', error));
+                    .catch(error => {
+                        console.error('Error:', error);
+                        logTransactionAction(currentUserEmail, 'Error creating post');
+                    });
                 });
 
                 // Fetch and display posts initially
@@ -89,6 +130,7 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(() => {
             window.location.href = 'index.html';
+            logAuthenticationAction('Session check failed');
         });
 
     // Function to create post element
@@ -131,9 +173,15 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if (data.error) {
                     console.error('Error updating status:', data.error);
+                    logTransactionAction(currentUserEmail, 'Error updating post status');
+                } else {
+                    logTransactionAction(currentUserEmail, `Post status updated to ${statusDropdown.value}`);
                 }
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                logTransactionAction(currentUserEmail, 'Error updating post status');
+            });
         });
 
         return newPost;
@@ -146,3 +194,4 @@ document.addEventListener("DOMContentLoaded", function() {
         return tempDiv.innerHTML;
     }
 });
+

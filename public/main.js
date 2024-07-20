@@ -1,13 +1,47 @@
+// Function to send log messages to the server
+function sendLog(type, email, message) {
+    fetch('/log', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            type: type,
+            email: email,
+            message: message,
+            timestamp: new Date().toISOString()
+        })
+    }).catch(error => console.error('Error sending log:', error));
+}
+
+// Log actions for authentication, transactions, and administrative actions
+function logAuthenticationAction(email, action) {
+    sendLog('authentication', email, `User performed authentication action: ${action}`);
+}
+
+function logTransactionAction(email, action) {
+    sendLog('transaction', email, `User performed transaction action: ${action}`);
+}
+
+function logAdminAction(email, action) {
+    sendLog('admin', email, `Admin performed action: ${action}`);
+}
+
+
+let currentUserEmail = null; // Global variable to store current user email
+
 const container = document.querySelector('.container');
 const btnSignIn = document.querySelector('.btnSign-in');
 const btnSignUp = document.querySelector('.btnSign-up');
 
 btnSignIn.addEventListener('click', () => {
     container.classList.add('active');
+    logAuthenticationAction(currentUserEmail, 'User clicked Sign In');
 });
 
 btnSignUp.addEventListener('click', () => {
     container.classList.remove('active');
+    logAuthenticationAction(currentUserEmail, 'User clicked Sign Up');
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -24,11 +58,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 imgError.textContent = 'Invalid file type. Only JPEG/PNG images allowed.';
                 imgError.classList.add('visible');
                 e.target.value = ''; // Clear the selection
+                logTransactionAction(currentUserEmail, 'Invalid file type uploaded');
             } else {
                 imgError.textContent = '';
                 imgError.classList.remove('visible');
                 const fileName = file.name || 'Choose Profile Photo';
                 fileLabel.textContent = fileName;
+                logTransactionAction(currentUserEmail, 'Valid file uploaded');
             }
         } else {
             fileLabel.textContent = 'Choose Profile Photo';
@@ -105,14 +141,18 @@ document.getElementById('form_signup').addEventListener('submit', function(e) {
         xhr.onload = function() {
             if (xhr.status === 200) {
                 alert(xhr.responseText);
+                currentUserEmail = emailSignup; // Store the email of the signed up user
+                logAuthenticationAction(currentUserEmail, 'User signed up successfully');
                 location.reload();
             } else {
                 alert('An error occurred during signup.');
+                logAuthenticationAction(currentUserEmail, 'Signup error');
             }
         };
         xhr.send(formData);
     } else {
         // Prevent form submission if there are errors
+        logAuthenticationAction(currentUserEmail, 'Signup validation failed');
         return false;
     }
 });
@@ -127,6 +167,7 @@ document.getElementById('form_login').addEventListener('submit', function(event)
     if (!email || !password) {
         loginError.textContent = "Please enter both email and password";
         loginError.classList.add('visible');
+        logAuthenticationAction(currentUserEmail, 'Login failed: missing credentials');
         return;
     }
 
@@ -138,19 +179,24 @@ document.getElementById('form_login').addEventListener('submit', function(event)
         const response = JSON.parse(xhr.responseText);
         if (xhr.status === 200) {
             alert('Logged in successfully.');
+            currentUserEmail = email; // Store the email of the logged in user
+            logAuthenticationAction(currentUserEmail, 'User logged in successfully');
             // CLEAR OUT FIELDS HERE
             document.getElementById('email').value = '';
             document.getElementById('password').value = '';
             
             if (response.roles.includes('admin')) {
                 window.location.href = 'admin.html';
+                logAdminAction(currentUserEmail, 'Admin logged in');
             } else {
                 window.location.href = 'user.html';
             }
         } else {
             loginError.textContent = response.error || 'An error occurred. Please try again.';
             loginError.classList.add('visible');
+            logAuthenticationAction(currentUserEmail, 'Login error: ' + (response.error || 'Unknown error'));
         }
     };
     xhr.send(JSON.stringify(loginData));
 });
+

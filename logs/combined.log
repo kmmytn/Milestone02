@@ -77,3 +77,22 @@
 2024-07-20T07:06:10.095Z [info]: User signed up successfully: roshan.aadelisse@gmail.com
 2024-07-20T07:06:24.262Z [info]: User logged in successfully: roshan.aadelisse@gmail.com
 2024-07-20T07:06:59.832Z [info]: User logged out
+2024-07-20T07:38:55.427Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T07:38:55.472Z [info]: Connected to the database.
+2024-07-20T07:39:13.088Z [info]: authentication: User performed authentication action: Login error: Invalid email or password. You have 2 more attempts.
+2024-07-20T07:39:21.735Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T07:39:25.497Z [info]: User logged out
+2024-07-20T07:40:58.824Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T07:40:58.835Z [info]: Connected to the database.
+2024-07-20T07:41:11.868Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T07:41:18.746Z [info]: Received post data:
+2024-07-20T07:41:18.767Z [info]: user: User performed action: Post created successfully
+2024-07-20T07:49:16.759Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T07:49:16.769Z [info]: Connected to the database.
+2024-07-20T07:49:39.338Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T07:49:41.489Z [info]: authentication: User performed authentication action: Session check passed
+2024-07-20T07:49:41.517Z [info]: admin: Admin performed action: Fetched and displayed posts
+2024-07-20T07:49:50.632Z [info]: admin: Admin performed action: Sending post data: {"content":"hello pls lang","price":23,"quantity":4,"status":"Available"}
+2024-07-20T07:49:50.650Z [info]: Received post data:
+2024-07-20T07:49:50.659Z [info]: admin: Admin performed action: Post created successfully
+2024-07-20T07:50:37.657Z [info]: User logged out

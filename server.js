@@ -9,6 +9,7 @@ const https = require('https');
 const session = require('express-session');
 const path = require('path');
 const logger = require('./logger');
+const bodyParser = require('body-parser');
 
 const logsDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -27,6 +28,7 @@ const credentials = {
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Use sessions
