@@ -216,8 +216,9 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
 });
 
 router.get('/posts', isAuthenticated, (req, res) => {
+    const currentUserId = req.session.user.id;
     const query = `
-        SELECT posts.id, posts.content, posts.price, posts.quantity, posts.status, posts.created_at, users.full_name as username
+        SELECT posts.id, posts.content, posts.price, posts.quantity, posts.status, posts.created_at, users.full_name as username, posts.user_id
         FROM posts
         JOIN users ON posts.user_id = users.id
     `;
@@ -225,7 +226,7 @@ router.get('/posts', isAuthenticated, (req, res) => {
         if (err) {
             return handleError(res, err, 'Database query error');
         }
-        res.json(results);
+        res.json({ currentUserId, posts: results });
     });
 });
 

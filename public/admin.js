@@ -30,11 +30,6 @@ function logAdminAction(email, action) {
     sendLog('admin', email, `Admin performed action: ${action}`);
 }
 
-function logUserAction(email, action) {
-    console.log(`Logging user action for ${email}: ${action}`); // Debug log
-    sendLog('user', email, `User performed action: ${action}`);
-}
-
 document.addEventListener("DOMContentLoaded", function() {
     const adminForm = document.getElementById('admin-form');
     const postsContainer = document.getElementById('posts-container');
@@ -42,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const charCount = document.getElementById('char-count');
 
     let currentAdminEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
+    let currentUserId; // To store the current user ID from session check
     console.log('Current admin email:', currentAdminEmail); // Debug log
 
     // Character count update
@@ -51,22 +47,21 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Function to fetch and display posts
-    function fetchAndDisplayPosts(email) {
-        console.log('Fetching and displaying posts');
+    function fetchAndDisplayPosts() {
         fetch('/posts')
             .then(response => response.json())
             .then(data => {
-                console.log('Fetched posts:', data);
+                const { currentUserId, posts } = data;
                 postsContainer.innerHTML = ''; // Clear existing posts
-                data.forEach(post => {
-                    const newPost = createPostElement(post.id, sanitizeInput(post.content), post.price, post.quantity, post.status, sanitizeInput(post.username));
+                posts.forEach(post => {
+                    const newPost = createPostElement(post.id, sanitizeInput(post.content), post.price, post.quantity, post.status, sanitizeInput(post.username), currentUserId, post.user_id);
                     postsContainer.appendChild(newPost);
                 });
-                logAdminAction(email, 'Fetched and displayed posts');
+                logAdminAction(currentAdminEmail, 'Fetched and displayed posts');
             })
             .catch(error => {
                 console.error('Error fetching posts:', error);
-                logAdminAction(email, 'Error fetching posts');
+                logAdminAction(currentAdminEmail, 'Error fetching posts');
             });
     }
 
@@ -80,6 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.location.href = 'index.html';
             } else {
                 document.body.classList.remove('hidden');
+                currentUserId = data.userId; // Get user ID from session check
                 console.log('Current admin email after session check:', currentAdminEmail); // Debug log
                 logAuthenticationAction(currentAdminEmail, 'Session check passed');
 
@@ -123,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             console.error('Error:', data.error);
                             logAdminAction(currentAdminEmail, 'Error creating post');
                         } else {
-                            const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', data.username);
+                            const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', data.username, currentUserId, currentUserId);
                             postsContainer.appendChild(newPost);
 
                             adminInput.value = '';
@@ -149,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
     // Function to create post element
-    function createPostElement(postId, content, price, quantity, status, username) {
+    function createPostElement(postId, content, price, quantity, status, username, currentUserId, postUserId) {
         const newPost = document.createElement('div');
         newPost.classList.add('post');
         newPost.dataset.postId = postId; // Store post ID for future reference
@@ -178,28 +174,33 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Update status logic
         const statusDropdown = newPost.querySelector('.post-category');
-        statusDropdown.addEventListener('change', () => {
-            fetch(`/update-post-status/${postId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: statusDropdown.value })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error('Error updating status:', data.error);
+        if (currentUserId === postUserId) {
+            statusDropdown.disabled = false; // Ensure it's enabled for the owner
+            statusDropdown.addEventListener('change', () => {
+                fetch(`/update-post-status/${postId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: statusDropdown.value })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error updating status:', data.error);
+                        logAdminAction(currentAdminEmail, 'Error updating post status');
+                    } else {
+                        logAdminAction(currentAdminEmail, `Post status updated to ${statusDropdown.value}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     logAdminAction(currentAdminEmail, 'Error updating post status');
-                } else {
-                    logAdminAction(currentAdminEmail, `Post status updated to ${statusDropdown.value}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                logAdminAction(currentAdminEmail, 'Error updating post status');
+                });
             });
-        });
+        } else {
+            statusDropdown.disabled = true; // Disable the dropdown if the user is not the owner
+        }
 
         // Edit button logic
         const editButton = newPost.querySelector('.edit-btn');

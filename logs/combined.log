@@ -198,3 +198,97 @@
 2024-07-20T08:53:46.024Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
 2024-07-20T08:53:46.219Z [info]: admin - admin@gmail.com: Admin performed action: Fetched and displayed posts
 2024-07-20T08:53:48.164Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
+2024-07-20T11:18:38.232Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:18:38.251Z [info]: Connected to the database.
+2024-07-20T11:19:19.803Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:19:21.057Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:22:08.651Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:22:08.662Z [info]: Connected to the database.
+2024-07-20T11:22:20.225Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:22:21.575Z [info]: authentication - chanel@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:22:21.610Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:22:34.949Z [info]: transaction - chanel@gmail.com: User performed transaction action: Sending post data: {"content":"hello","price":123,"quantity":2,"status":"Available"}
+2024-07-20T11:22:34.975Z [info]: Post created by chanel
+2024-07-20T11:22:34.982Z [info]: transaction - chanel@gmail.com: User performed transaction action: Post created successfully
+2024-07-20T11:23:19.177Z [info]: User logged out
+2024-07-20T11:23:31.532Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:23:32.711Z [info]: authentication - chanel@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:23:32.733Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:24:03.295Z [info]: transaction - chanel@gmail.com: User performed transaction action: Post status updated to Sold
+2024-07-20T11:24:10.727Z [info]: User logged out
+2024-07-20T11:27:30.635Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:27:31.979Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:27:32.049Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:28:37.571Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:28:37.582Z [info]: Connected to the database.
+2024-07-20T11:28:50.957Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:28:52.193Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:28:52.221Z [error]: Database query error: ER_BAD_FIELD_ERROR: Unknown column 'user.email' in 'field list'
+2024-07-20T11:28:52.232Z [info]: transaction - null: User performed transaction action: Error fetching posts
+2024-07-20T11:30:51.937Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:30:51.947Z [info]: Connected to the database.
+2024-07-20T11:31:10.565Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:31:11.889Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:31:11.943Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:35:25.299Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:35:25.310Z [info]: Connected to the database.
+2024-07-20T11:35:38.686Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:35:39.921Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:35:40.005Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:37:30.355Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:37:31.419Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:37:31.489Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:38:30.896Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:38:30.907Z [info]: Connected to the database.
+2024-07-20T11:38:46.080Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:38:47.211Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T11:38:47.316Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:41:20.380Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:41:20.390Z [info]: Connected to the database.
+2024-07-20T11:41:34.174Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T11:41:35.183Z [info]: authentication - chanel@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:41:35.305Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:41:38.467Z [info]: transaction - chanel@gmail.com: User performed transaction action: Post status updated to Available
+2024-07-20T11:41:45.202Z [info]: transaction - chanel@gmail.com: User performed transaction action: Post status updated to Sold
+2024-07-20T11:43:19.679Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:43:19.691Z [info]: Connected to the database.
+2024-07-20T11:43:32.627Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T11:43:33.739Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:43:33.861Z [info]: transaction - null: User performed transaction action: Error fetching posts
+2024-07-20T11:46:19.331Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:46:19.342Z [info]: Connected to the database.
+2024-07-20T11:46:31.087Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T11:46:32.320Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:46:32.381Z [info]: transaction - admin@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:46:41.532Z [info]: Post created by admin
+2024-07-20T11:46:41.539Z [info]: admin - admin@gmail.com: Admin performed action: Post created successfully
+2024-07-20T11:46:44.040Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
+2024-07-20T11:46:52.774Z [info]: Post created by admin
+2024-07-20T11:46:52.786Z [info]: admin - admin@gmail.com: Admin performed action: Post created successfully
+2024-07-20T11:48:45.757Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:48:45.774Z [info]: Connected to the database.
+2024-07-20T11:49:47.272Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T11:49:48.419Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:49:48.509Z [info]: transaction - admin@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:49:50.936Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
+2024-07-20T11:49:54.565Z [info]: Post created by admin
+2024-07-20T11:49:54.572Z [info]: admin - admin@gmail.com: Admin performed action: Post created successfully
+2024-07-20T11:50:37.861Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:50:37.873Z [info]: Connected to the database.
+2024-07-20T11:50:50.589Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T11:50:51.539Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:50:51.637Z [info]: transaction - admin@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:50:56.525Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
+2024-07-20T11:50:59.949Z [info]: Post created by admin
+2024-07-20T11:50:59.960Z [info]: admin - admin@gmail.com: Admin performed action: Post created successfully
+2024-07-20T11:53:07.804Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T11:53:07.817Z [info]: Connected to the database.
+2024-07-20T11:53:20.281Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T11:53:21.394Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-07-20T11:53:21.437Z [info]: transaction - admin@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-20T11:53:23.694Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
+2024-07-20T11:53:26.909Z [info]: Post created by admin
+2024-07-20T11:53:26.918Z [info]: admin - admin@gmail.com: Admin performed action: Post created successfully
+2024-07-20T11:53:30.914Z [info]: transaction - admin@gmail.com: User performed transaction action: Post status updated to Sold
+2024-07-20T11:53:39.212Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
+2024-07-20T11:53:42.598Z [info]: User logged out

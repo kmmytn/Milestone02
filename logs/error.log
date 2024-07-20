@@ -1,1 +1,2 @@
 2024-07-19T14:11:27.905Z [error]: Database query error: ER_NO_SUCH_TABLE: Table 'cssecdv.non_existing_table' doesn't exist
+2024-07-20T11:28:52.221Z [error]: Database query error: ER_BAD_FIELD_ERROR: Unknown column 'user.email' in 'field list'
