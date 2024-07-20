@@ -1,7 +1,15 @@
 document.addEventListener("DOMContentLoaded", function() {
     const adminForm = document.getElementById('admin-form');
     const postsContainer = document.getElementById('posts-container');
+    const adminInput = document.getElementById('admin-input');
+    const charCount = document.getElementById('char-count');
     let currentUserId = null;
+
+    // character count update
+    adminInput.addEventListener('input', () => {
+        const remaining = 250 - adminInput.value.length;
+        charCount.textContent = `${remaining} characters remaining`;
+    });
 
     // Function to fetch and display posts
     function fetchAndDisplayPosts() {
@@ -10,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 postsContainer.innerHTML = ''; // Clear existing posts
                 data.forEach(post => {
-                    const newPost = createPostElement(post.id, post.content, post.price, post.quantity, post.status, post.username);
+                    const newPost = createPostElement(post.id, sanitizeInput(post.content), post.price, post.quantity, post.status, sanitizeInput(post.username));
                     postsContainer.appendChild(newPost);
                 });
             })
@@ -30,12 +38,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 adminForm.addEventListener('submit', function(event) {
                     event.preventDefault();
 
-                    const tweetContent = document.getElementById('admin-input').value;
-                    const price = document.getElementById('price-input').value;
-                    const quantity = document.getElementById('quantity-input').value;
+                    const tweetContent = document.getElementById('admin-input').value.trim();
+                    const price = parseFloat(document.getElementById('price-input').value.trim());
+                    const quantity = parseInt(document.getElementById('quantity-input').value.trim());
+
+                    if (isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
+                        alert('Please enter valid numeric values for price and quantity.');
+                        return;
+                    }
+                    
+                    if (tweetContent.length > 250) {
+                        alert('Tweet content must be 250 characters or less.');
+                        return;
+                    }
 
                     const postData = {
-                        content: tweetContent,
+                        content: sanitizeInput(tweetContent),
                         price: price,
                         quantity: quantity,
                         status: 'Available'
@@ -53,12 +71,13 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (data.error) {
                             console.error('Error:', data.error);
                         } else {
-                            const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', data.username);
+                            const newPost = createPostElement(data.postId, sanitizeInput(tweetContent), price, quantity, 'Available', sanitizeInput(data.username));
                             postsContainer.appendChild(newPost);
 
-                            document.getElementById('admin-input').value = '';
+                            adminInput.value = '';
                             document.getElementById('price-input').value = '';
                             document.getElementById('quantity-input').value = '';
+                            charCount.textContent = '250 characters remaining';
                         }
                     })
                     .catch(error => console.error('Error:', error));
@@ -175,5 +194,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         return newPost;
+    }
+
+    // Function to sanitize input
+    function sanitizeInput(input) {
+        const tempDiv = document.createElement('div');
+        tempDiv.textContent = input;
+        return tempDiv.innerHTML;
     }
 });

@@ -148,3 +148,9 @@ input[type="number"] {
 body.hidden {
     visibility: hidden;
 }
+
+#char-count {
+    color: #555;
+    font-size: 14px;
+    margin-top: 5px;
+}
