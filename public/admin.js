@@ -1,5 +1,3 @@
-let currentUserEmail = null; // Global variable to store current user email
-
 // Function to send log messages to the server
 function sendLog(type, email, message) {
     fetch('/log', {
@@ -18,18 +16,22 @@ function sendLog(type, email, message) {
 
 // Log actions for authentication, transactions, and administrative actions
 function logAuthenticationAction(email, action) {
+    console.log(`Logging authentication action for ${email}: ${action}`); // Debug log
     sendLog('authentication', email, `User performed authentication action: ${action}`);
 }
 
 function logTransactionAction(email, action) {
+    console.log(`Logging transaction action for ${email}: ${action}`); // Debug log
     sendLog('transaction', email, `User performed transaction action: ${action}`);
 }
 
 function logAdminAction(email, action) {
+    console.log(`Logging admin action for ${email}: ${action}`); // Debug log
     sendLog('admin', email, `Admin performed action: ${action}`);
 }
 
 function logUserAction(email, action) {
+    console.log(`Logging user action for ${email}: ${action}`); // Debug log
     sendLog('user', email, `User performed action: ${action}`);
 }
 
@@ -39,6 +41,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
 
+    let currentAdminEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
+    console.log('Current admin email:', currentAdminEmail); // Debug log
+
     // Character count update
     adminInput.addEventListener('input', () => {
         const remaining = 250 - adminInput.value.length;
@@ -46,60 +51,65 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Function to fetch and display posts
-    function fetchAndDisplayPosts() {
+    function fetchAndDisplayPosts(email) {
+        console.log('Fetching and displaying posts');
         fetch('/posts')
             .then(response => response.json())
             .then(data => {
+                console.log('Fetched posts:', data);
                 postsContainer.innerHTML = ''; // Clear existing posts
                 data.forEach(post => {
                     const newPost = createPostElement(post.id, sanitizeInput(post.content), post.price, post.quantity, post.status, sanitizeInput(post.username));
                     postsContainer.appendChild(newPost);
                 });
-                logAdminAction(currentUserEmail, 'Fetched and displayed posts');
+                logAdminAction(email, 'Fetched and displayed posts');
             })
             .catch(error => {
                 console.error('Error fetching posts:', error);
-                logAdminAction(currentUserEmail, 'Error fetching posts');
+                logAdminAction(email, 'Error fetching posts');
             });
     }
 
     // Session check
+    console.log('Checking session');
     fetch('/check-session')
         .then(response => response.json())
         .then(data => {
+            console.log('Session check data:', data);
             if (data.error || !data.roles.includes('admin')) {
                 window.location.href = 'index.html';
             } else {
                 document.body.classList.remove('hidden');
-                currentUserEmail = data.email; // Get user email from session check
-                logAuthenticationAction(currentUserEmail, 'Session check passed');
+                console.log('Current admin email after session check:', currentAdminEmail); // Debug log
+                logAuthenticationAction(currentAdminEmail, 'Session check passed');
 
                 adminForm.addEventListener('submit', function(event) {
                     event.preventDefault();
 
-                    const tweetContent = document.getElementById('admin-input').value.trim();
+                    const tweetContent = adminInput.value.trim();
                     const price = parseFloat(document.getElementById('price-input').value.trim());
                     const quantity = parseInt(document.getElementById('quantity-input').value.trim());
 
                     if (isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
                         alert('Please enter valid numeric values for price and quantity.');
-                        logAdminAction(currentUserEmail, 'Invalid price or quantity entered');
+                        logAdminAction(currentAdminEmail, 'Invalid price or quantity entered');
                         return;
                     }
 
                     if (tweetContent.length > 250) {
                         alert('Tweet content must be 250 characters or less.');
-                        logAdminAction(currentUserEmail, 'Tweet content exceeded 250 characters');
+                        logAdminAction(currentAdminEmail, 'Tweet content exceeded 250 characters');
                         return;
                     }
 
                     const postData = {
-                        content: sanitizeInput(tweetContent),
+                        content: tweetContent,
                         price: price,
                         quantity: quantity,
                         status: 'Available'
                     };
 
+                    console.log('Submitting post data:', postData); // Debug log
                     fetch('/posts', {
                         method: 'POST',
                         headers: {
@@ -111,31 +121,31 @@ document.addEventListener("DOMContentLoaded", function() {
                     .then(data => {
                         if (data.error) {
                             console.error('Error:', data.error);
-                            logAdminAction(currentUserEmail, 'Error creating post');
+                            logAdminAction(currentAdminEmail, 'Error creating post');
                         } else {
-                            const newPost = createPostElement(data.postId, sanitizeInput(tweetContent), price, quantity, 'Available', sanitizeInput(data.username));
+                            const newPost = createPostElement(data.postId, tweetContent, price, quantity, 'Available', data.username);
                             postsContainer.appendChild(newPost);
 
                             adminInput.value = '';
                             document.getElementById('price-input').value = '';
                             document.getElementById('quantity-input').value = '';
                             charCount.textContent = '250 characters remaining';
-                            logAdminAction(currentUserEmail, 'Post created successfully');
+                            logAdminAction(currentAdminEmail, 'Post created successfully');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        logAdminAction(currentUserEmail, 'Error creating post');
+                        logAdminAction(currentAdminEmail, 'Error creating post');
                     });
                 });
 
                 // Fetch and display posts initially
-                fetchAndDisplayPosts();
+                fetchAndDisplayPosts(currentAdminEmail);
             }
         })
         .catch(() => {
             window.location.href = 'index.html';
-            logAuthenticationAction(currentUserEmail, 'Session check failed');
+            logAuthenticationAction(currentAdminEmail, 'Session check failed');
         });
 
     // Function to create post element
@@ -180,14 +190,14 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if (data.error) {
                     console.error('Error updating status:', data.error);
-                    logAdminAction(currentUserEmail, 'Error updating post status');
+                    logAdminAction(currentAdminEmail, 'Error updating post status');
                 } else {
-                    logAdminAction(currentUserEmail, `Post status updated to ${statusDropdown.value}`);
+                    logAdminAction(currentAdminEmail, `Post status updated to ${statusDropdown.value}`);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                logAdminAction(currentUserEmail, 'Error updating post status');
+                logAdminAction(currentAdminEmail, 'Error updating post status');
             });
         });
 
@@ -219,17 +229,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(data => {
                     if (data.error) {
                         console.error('Error:', data.error);
-                        logAdminAction(currentUserEmail, 'Error editing post');
+                        logAdminAction(currentAdminEmail, 'Error editing post');
                     } else {
                         postText.textContent = editText;
                         postPrice.textContent = editPrice;
                         postQuantity.textContent = editQuantity;
-                        logAdminAction(currentUserEmail, 'Post edited successfully');
+                        logAdminAction(currentAdminEmail, 'Post edited successfully');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    logAdminAction(currentUserEmail, 'Error editing post');
+                    logAdminAction(currentAdminEmail, 'Error editing post');
                 });
             }
         });
@@ -244,15 +254,15 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 if (data.error) {
                     console.error('Error:', data.error);
-                    logAdminAction(currentUserEmail, 'Error deleting post');
+                    logAdminAction(currentAdminEmail, 'Error deleting post');
                 } else {
                     newPost.remove();
-                    logAdminAction(currentUserEmail, 'Post deleted successfully');
+                    logAdminAction(currentAdminEmail, 'Post deleted successfully');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                logAdminAction(currentUserEmail, 'Error deleting post');
+                logAdminAction(currentAdminEmail, 'Error deleting post');
             });
         });
 

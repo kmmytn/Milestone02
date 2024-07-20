@@ -96,3 +96,105 @@
 2024-07-20T07:49:50.650Z [info]: Received post data:
 2024-07-20T07:49:50.659Z [info]: admin: Admin performed action: Post created successfully
 2024-07-20T07:50:37.657Z [info]: User logged out
+2024-07-20T08:02:18.618Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:02:18.637Z [info]: Connected to the database.
+2024-07-20T08:02:31.155Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T08:02:32.623Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:02:32.673Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T08:02:38.335Z [info]: transaction - undefined: User performed transaction action: Sending post data: {"content":"ayoko na","price":12,"quantity":3,"status":"Available"}
+2024-07-20T08:02:38.353Z [info]: Received post data:
+2024-07-20T08:02:38.369Z [info]: transaction - undefined: User performed transaction action: Post created successfully
+2024-07-20T08:05:19.542Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:05:19.553Z [info]: Connected to the database.
+2024-07-20T08:05:42.924Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:05:43.970Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:06:34.632Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:06:34.641Z [info]: Connected to the database.
+2024-07-20T08:06:44.796Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:06:45.702Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:09:31.740Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:09:31.752Z [info]: Connected to the database.
+2024-07-20T08:09:47.798Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:09:49.001Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:12:03.424Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-20T08:12:04.551Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:12:04.575Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T08:12:06.769Z [info]: User logged out
+2024-07-20T08:12:58.330Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:12:59.130Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:12:59.317Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:12:59.350Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-07-20T08:14:22.961Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:14:22.972Z [info]: Connected to the database.
+2024-07-20T08:14:35.092Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:14:36.078Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:14:36.271Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:14:36.300Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:14:48.596Z [info]: Received post data:
+2024-07-20T08:14:48.608Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:14:55.254Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:14:55.898Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:15:01.998Z [info]: User logged out
+2024-07-20T08:21:13.020Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:21:13.905Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:21:14.139Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:21:14.162Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:21:17.216Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:21:18.241Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:21:24.322Z [info]: Received post data:
+2024-07-20T08:21:24.341Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:26:21.717Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:26:22.904Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:30:53.003Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:30:53.824Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:30:54.010Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:30:54.068Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:30:59.754Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:31:03.824Z [info]: Received post data:
+2024-07-20T08:31:03.846Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:32:17.082Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:32:18.084Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:32:18.271Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:32:18.299Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:32:20.597Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:32:26.322Z [info]: Received post data:
+2024-07-20T08:32:26.331Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:32:32.967Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:32:39.984Z [info]: Received post data:
+2024-07-20T08:32:39.992Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:36:45.252Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:36:46.280Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:36:46.782Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:36:46.887Z [info]: admin - undefined: Admin performed action: Error fetching posts
+2024-07-20T08:36:49.263Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:38:41.126Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:38:42.143Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:38:42.563Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:38:42.773Z [info]: admin - undefined: Admin performed action: Error fetching posts
+2024-07-20T08:38:45.564Z [info]: Received post data:
+2024-07-20T08:38:45.585Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:39:15.185Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:39:15.306Z [info]: admin - undefined: Admin performed action: Error fetching posts
+2024-07-20T08:39:17.386Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:39:40.064Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:39:40.315Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:39:42.815Z [info]: Received post data:
+2024-07-20T08:39:42.835Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:40:09.860Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:40:09.871Z [info]: Connected to the database.
+2024-07-20T08:40:23.256Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:40:24.029Z [info]: admin - admin@gmail.com: Admin performed action: Admin logged in
+2024-07-20T08:40:24.504Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:40:24.680Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:40:27.140Z [info]: admin - undefined: Admin performed action: Post deleted successfully
+2024-07-20T08:52:07.784Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T08:52:07.802Z [info]: Connected to the database.
+2024-07-20T08:52:19.225Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:52:20.640Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-07-20T08:52:20.808Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-07-20T08:52:26.782Z [info]: Post created by admin
+2024-07-20T08:52:26.791Z [info]: admin - undefined: Admin performed action: Post created successfully
+2024-07-20T08:53:44.602Z [info]: User logged in successfully: admin@gmail.com
+2024-07-20T08:53:46.024Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-07-20T08:53:46.219Z [info]: admin - admin@gmail.com: Admin performed action: Fetched and displayed posts
+2024-07-20T08:53:48.164Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully

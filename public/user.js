@@ -28,7 +28,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const postsContainer = document.getElementById('posts-container');
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
-    let currentUserEmail = null;
+
+    let currentUserEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
+    console.log('Current admin email:', currentUserEmail); // Debug log
 
     // Character count update
     adminInput.addEventListener('input', () => {

@@ -230,9 +230,12 @@ router.get('/posts', isAuthenticated, (req, res) => {
 });
 
 router.post('/posts', isAuthenticated, (req, res) => {
-    const { content, price, quantity, status } = req.body;
 
-    logger.info('Received post data:', { content, price, quantity, status }); // Log the received data
+    const { content, price, quantity, status } = req.body;
+    if (!content || !price || !quantity || !status) {
+        logger.error('Invalid post data:', req.body); // Log invalid data
+        return res.status(400).send('Invalid post data');
+    }
 
     const query = 'INSERT INTO posts (user_id, content, price, quantity, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())';
     db.query(query, [req.session.user.id, content, price, quantity, status], (err, result) => {
@@ -250,6 +253,7 @@ router.post('/posts', isAuthenticated, (req, res) => {
 
             const username = userResult[0].username;
             res.json({ message: 'Post created successfully', postId: result.insertId, username });
+            logger.info(`Post created by ${username}`);
         });
     });
 });
