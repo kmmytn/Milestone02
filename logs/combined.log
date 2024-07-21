@@ -292,3 +292,16 @@
 2024-07-20T11:53:30.914Z [info]: transaction - admin@gmail.com: User performed transaction action: Post status updated to Sold
 2024-07-20T11:53:39.212Z [info]: admin - admin@gmail.com: Admin performed action: Post deleted successfully
 2024-07-20T11:53:42.598Z [info]: User logged out
+2024-07-20T16:00:51.480Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-20T16:00:51.497Z [info]: Connected to the database.
+2024-07-21T05:43:30.067Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-21T05:43:30.079Z [info]: Connected to the database.
+2024-07-21T05:44:08.279Z [info]: User logged in successfully: chanel@gmail.com
+2024-07-21T05:44:09.505Z [info]: authentication - chanel@gmail.com: User performed authentication action: Session check passed
+2024-07-21T05:44:09.559Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-21T05:45:47.793Z [info]: authentication - chanel@gmail.com: User performed authentication action: Session check passed
+2024-07-21T05:45:47.837Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-07-21T05:47:06.762Z [error]: Database query error: WARN_DATA_TRUNCATED: Data truncated for column 'status' at row 1
+2024-07-21T05:47:36.385Z [error]: Database query error: WARN_DATA_TRUNCATED: Data truncated for column 'status' at row 1
+2024-07-21T06:10:05.539Z [info]: HTTPS Server listening at https://localhost:3000
+2024-07-21T06:10:05.552Z [info]: Connected to the database.

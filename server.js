@@ -10,6 +10,7 @@ const session = require('express-session');
 const path = require('path');
 const logger = require('./logger');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 
 const logsDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -25,6 +26,33 @@ const credentials = {
     key: privateKey,
     cert: certificate
 };
+
+// Use helmet to set security-related HTTP headers
+app.use(helmet());
+
+// Manually configure headers that require specific options
+app.use((req, res, next) => {
+  // X-Frame-Options: DENY - Prevents the site from being framed to avoid clickjacking attacks
+  res.setHeader('X-Frame-Options', 'DENY');
+
+  // Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  // Forces the browser to use HTTPS for all future requests for the next 2 years
+  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+
+  // X-Content-Type-Options: nosniff - Prevents the browser from interpreting files as a different MIME type to what is specified
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+});
+
+// Example of setting the secure flag for cookies
+app.use((req, res, next) => {
+  res.cookie('connect.sid', 'value', {
+    secure: true, // Ensures the browser only sends the cookie over HTTPS
+    httpOnly: true, // Ensures the cookie is sent only over HTTP(S), not client JavaScript
+    sameSite: 'strict' // Mitigates CSRF attacks by restricting the cookie to same-site requests
+  });
+  next();
+});
 
 // Middleware to parse JSON bodies
 app.use(express.json());
