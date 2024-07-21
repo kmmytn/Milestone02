@@ -1,9 +1,28 @@
+// Function to get the CSRF token from the cookie
+function getCsrfToken() {
+    const name = 'XSRF-TOKEN=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
 // Function to send log messages to the server
 function sendLog(type, email, message) {
+    const csrfToken = getCsrfToken();
     fetch('/log', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken // Include CSRF token in headers
         },
         body: JSON.stringify({
             type: type,
@@ -11,7 +30,14 @@ function sendLog(type, email, message) {
             message: message,
             timestamp: new Date().toISOString()
         })
-    }).catch(error => console.error('Error sending log:', error));
+    }).catch(error => {
+        if (error.message.includes('invalid csrf token')) {
+            console.error('Invalid CSRF token:', error);
+            sendLog('error', email, 'Invalid CSRF token detected');
+        } else {
+            console.error('Error sending log:', error);
+        }
+    });
 }
 
 // Log actions for authentication, transactions, and administrative actions
@@ -36,9 +62,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
 
-    let currentAdminEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
-    let currentUserId; // To store the current user ID from session check
-    console.log('Current admin email:', currentAdminEmail); // Debug log
+    //let currentAdminEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
+
+    
 
     // Character count update
     adminInput.addEventListener('input', () => {
@@ -60,8 +86,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 logAdminAction(currentAdminEmail, 'Fetched and displayed posts');
             })
             .catch(error => {
-                console.error('Error fetching posts:', error);
-                logAdminAction(currentAdminEmail, 'Error fetching posts');
+                if (error.message.includes('invalid csrf token')) {
+                    console.error('Invalid CSRF token:', error);
+                    sendLog('error', currentAdminEmail, 'Invalid CSRF token detected during fetching posts');
+                } else {
+                    console.error('Error fetching posts:', error);
+                    logAdminAction(currentAdminEmail, 'Error fetching posts');
+                }
             });
     }
 
@@ -75,7 +106,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.location.href = 'index.html';
             } else {
                 document.body.classList.remove('hidden');
-                currentUserId = data.userId; // Get user ID from session check
+                const currentUserId = data.userId; // Get user ID from session check
+                const currentAdminEmail = data.email; // Get admin email from response
                 console.log('Current admin email after session check:', currentAdminEmail); // Debug log
                 logAuthenticationAction(currentAdminEmail, 'Session check passed');
 
@@ -109,7 +141,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     fetch('/posts', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'CSRF-Token': getCsrfToken() // Include CSRF token in headers
                         },
                         body: JSON.stringify(postData)
                     })
@@ -130,8 +163,13 @@ document.addEventListener("DOMContentLoaded", function() {
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        logAdminAction(currentAdminEmail, 'Error creating post');
+                        if (error.message.includes('invalid csrf token')) {
+                            console.error('Invalid CSRF token:', error);
+                            sendLog('error', currentAdminEmail, 'Invalid CSRF token detected during creating post');
+                        } else {
+                            console.error('Error:', error);
+                            logAdminAction(currentAdminEmail, 'Error creating post');
+                        }
                     });
                 });
 
@@ -180,7 +218,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 fetch(`/update-post-status/${postId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': getCsrfToken() // Include CSRF token in headers
                     },
                     body: JSON.stringify({ status: statusDropdown.value })
                 })
@@ -194,8 +233,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    logAdminAction(currentAdminEmail, 'Error updating post status');
+                    if (error.message.includes('invalid csrf token')) {
+                        console.error('Invalid CSRF token:', error);
+                        sendLog('error', currentAdminEmail, 'Invalid CSRF token detected during updating post status');
+                    } else {
+                        console.error('Error:', error);
+                        logAdminAction(currentAdminEmail, 'Error updating post status');
+                    }
                 });
             });
         } else {
@@ -217,7 +261,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 fetch(`/posts/${postId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': getCsrfToken() // Include CSRF token in headers
                     },
                     body: JSON.stringify({
                         content: editText,
@@ -239,8 +284,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    logAdminAction(currentAdminEmail, 'Error editing post');
+                    if (error.message.includes('invalid csrf token')) {
+                        console.error('Invalid CSRF token:', error);
+                        sendLog('error', currentAdminEmail, 'Invalid CSRF token detected during editing post');
+                    } else {
+                        console.error('Error:', error);
+                        logAdminAction(currentAdminEmail, 'Error editing post');
+                    }
                 });
             }
         });
@@ -249,7 +299,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const deleteButton = newPost.querySelector('.delete-btn');
         deleteButton.addEventListener('click', () => {
             fetch(`/posts/${postId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'CSRF-Token': getCsrfToken() // Include CSRF token in headers
+                }
             })
             .then(response => response.json())
             .then(data => {
@@ -262,8 +315,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                logAdminAction(currentAdminEmail, 'Error deleting post');
+                if (error.message.includes('invalid csrf token')) {
+                    console.error('Invalid CSRF token:', error);
+                    sendLog('error', currentAdminEmail, 'Invalid CSRF token detected during deleting post');
+                } else {
+                    console.error('Error:', error);
+                    logAdminAction(currentAdminEmail, 'Error deleting post');
+                }
             });
         });
 

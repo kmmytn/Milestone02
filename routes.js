@@ -159,7 +159,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
     }
 
     try {
-        const sql = 'SELECT id, password, full_name FROM users WHERE email = ?';
+        const sql = 'SELECT id, password, full_name, email FROM users WHERE email = ?';
         db.query(sql, [email], async (err, results) => {
             if (err) {
                 return handleError(res, err, 'Error logging in.');
@@ -176,7 +176,7 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
                 return handleFailedLoginAttempt(req, res);
             }
 
-            req.session.user = user;
+            req.session.user = { id: user.id, email: user.email, full_name: user.full_name };
             req.session.lastActivity = Date.now();
             req.session.loginAttempts[req.ip] = { attempts: 0, lockUntil: null }; // Reset attempts on successful login
 
@@ -327,10 +327,17 @@ router.get('/user.html', isUserPage, (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-    req.session.destroy();
-    logger.info(`User logged out`);
-    return res.status(200).json({ message: 'Logged out successfully.' });
+    const userEmail = req.session.user ? req.session.user.email : 'Unknown user';
+    req.session.destroy((err) => {
+        if (err) {
+            logger.error(`Error destroying session for user: ${userEmail}`);
+            return res.status(500).json({ error: 'Logout failed.' });
+        }
+        logger.info(`User logged out: ${userEmail}`);
+        return res.status(200).json({ message: 'Logged out successfully.' });
+    });
 });
+
 
 router.post('/log', (req, res) => {
     const { type, email, message, timestamp } = req.body;
@@ -394,7 +401,7 @@ function handleFailedLoginAttempt(req, res) {
 
 router.get('/check-session', checkSessionTimeout, (req, res) => {
     if (req.session.user) {
-        res.status(200).json({ message: 'Session active.', roles: req.session.roles, userId: req.session.user.id });
+        res.status(200).json({ message: 'Session active.', roles: req.session.roles, userId: req.session.user.id, userEmail: req.session.user.email });
     } else {
         res.status(401).json({ error: 'Session expired.' });
     }

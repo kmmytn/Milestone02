@@ -1,11 +1,28 @@
-let currentUserEmail = null; // Global variable to store current user email
+// Function to get the CSRF token from the cookie
+function getCsrfToken() {
+    const name = 'XSRF-TOKEN=';
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
 
 // Function to send log messages to the server
 function sendLog(type, email, message) {
+    const csrfToken = getCsrfToken();
     fetch('/log', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken // Include CSRF token in headers
         },
         body: JSON.stringify({
             type: type,
@@ -13,13 +30,22 @@ function sendLog(type, email, message) {
             message: message,
             timestamp: new Date().toISOString()
         })
-    }).catch(error => console.error('Error sending log:', error));
+    }).catch(error => {
+        if (error.message.includes('invalid csrf token')) {
+            console.error('Invalid CSRF token:', error);
+            sendLog('error', email, 'Invalid CSRF token detected');
+        } else {
+            console.error('Error sending log:', error);
+        }
+    });
 }
 
 // Log actions for authentication, transactions, and administrative actions
 function logAuthenticationAction(email, action) {
     sendLog('authentication', email, `User performed authentication action: ${action}`);
 }
+
+let currentUserEmail = localStorage.getItem('currentUserEmail');
 
 // Logout button functionality
 const button = document.querySelector('.logoutbtn');
@@ -28,6 +54,7 @@ button.addEventListener('click', function() {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/logout', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('CSRF-Token', getCsrfToken()); // Include CSRF token in headers
     xhr.onload = function() {
         if (xhr.status === 200) {
             alert('Logged out successfully.');
@@ -50,6 +77,10 @@ button.addEventListener('click', function() {
 
             window.location.href = 'index.html'; // Redirect to login page
         } else {
+            if (xhr.responseText.includes('invalid csrf token')) {
+                console.error('Invalid CSRF token during logout');
+                sendLog('error', currentUserEmail, 'Invalid CSRF token detected during logout');
+            }
             alert('Error logging out. Please try again.');
             logAuthenticationAction(currentUserEmail, 'Logout error');
         }
@@ -72,11 +103,17 @@ function resetTimers() {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/logout', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('CSRF-Token', getCsrfToken()); // Include CSRF token in headers
             xhr.onload = function() {
                 if (xhr.status === 200) {
                     alert('Session timed out. Please log in again.');
                     logAuthenticationAction(currentUserEmail, 'Session timed out');
                     window.location.href = 'index.html';
+                } else {
+                    if (xhr.responseText.includes('invalid csrf token')) {
+                        console.error('Invalid CSRF token during session timeout logout');
+                        sendLog('error', currentUserEmail, 'Invalid CSRF token detected during session timeout logout');
+                    }
                 }
             };
             xhr.send();
@@ -93,11 +130,17 @@ document.onkeypress = resetTimers;
 setInterval(function() {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', '/check-session', true);
+    xhr.setRequestHeader('CSRF-Token', getCsrfToken()); // Include CSRF token in headers
     xhr.onload = function() {
         if (xhr.status === 401) {
             alert('Session timed out. Please log in again.');
             logAuthenticationAction(currentUserEmail, 'Session timed out');
             window.location.href = 'index.html';
+        } else {
+            if (xhr.responseText.includes('invalid csrf token')) {
+                console.error('Invalid CSRF token during session check');
+                sendLog('error', currentUserEmail, 'Invalid CSRF token detected during session check');
+            }
         }
     };
     xhr.send();

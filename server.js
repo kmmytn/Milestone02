@@ -11,6 +11,8 @@ const path = require('path');
 const logger = require('./logger');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const csurf = require('csurf');
+const cookieParser = require('cookie-parser');
 
 const logsDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -29,30 +31,7 @@ const credentials = {
 
 // Use helmet to set security-related HTTP headers
 app.use(helmet());
-
-// Manually configure headers that require specific options
-app.use((req, res, next) => {
-  // X-Frame-Options: DENY - Prevents the site from being framed to avoid clickjacking attacks
-  res.setHeader('X-Frame-Options', 'DENY');
-
-  // Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-  // Forces the browser to use HTTPS for all future requests for the next 2 years
-  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-
-  // X-Content-Type-Options: nosniff - Prevents the browser from interpreting files as a different MIME type to what is specified
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  next();
-});
-
-// Example of setting the secure flag for cookies
-app.use((req, res, next) => {
-  res.cookie('connect.sid', 'value', {
-    secure: true, // Ensures the browser only sends the cookie over HTTPS
-    httpOnly: true, // Ensures the cookie is sent only over HTTP(S), not client JavaScript
-    sameSite: 'strict' // Mitigates CSRF attacks by restricting the cookie to same-site requests
-  });
-  next();
-});
+app.use(cookieParser());
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -66,6 +45,32 @@ app.use(session({
     saveUninitialized: true,
     cookie: { maxAge: 30000 } // 30 seconds for trial
 }));
+
+// Setup CSRF protection
+const csrfProtection = csurf({ cookie: true });
+app.use(csrfProtection);
+
+// Middleware to set CSRF token in the response locals and in a cookie
+app.use((req, res, next) => {
+    const token = req.csrfToken();
+    res.cookie('XSRF-TOKEN', token); // Set CSRF token in a cookie named 'XSRF-TOKEN'
+    res.locals.csrfToken = token; // Make CSRF token available in templates
+    next();
+});
+
+// Manually configure headers that require specific options
+app.use((req, res, next) => {
+    // X-Frame-Options: DENY - Prevents the site from being framed to avoid clickjacking attacks
+    res.setHeader('X-Frame-Options', 'DENY');
+
+    // Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+    // Forces the browser to use HTTPS for all future requests for the next 2 years
+    res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+
+    // X-Content-Type-Options: nosniff - Prevents the browser from interpreting files as a different MIME type to what is specified
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+});
 
 // Use routes
 app.use('/', routes);
