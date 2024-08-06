@@ -43,7 +43,12 @@ app.use(session({
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 30000 } // 30 seconds for trial
+    cookie: { 
+        secure: true,
+        httpOnly: true,
+        path: '/',
+        maxAge: 3600000 // 1 hour
+    }
 }));
 
 // Setup CSRF protection

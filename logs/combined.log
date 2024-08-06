@@ -363,3 +363,11 @@
 2024-07-21T07:30:21.764Z [info]: authentication - undefined: User performed authentication action: Session check passed
 2024-07-21T07:30:21.802Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
 2024-07-21T07:30:23.444Z [info]: User logged out: chanel@gmail.com
+2024-08-06T16:59:57.562Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-06T16:59:57.580Z [info]: Connected to the database.
+2024-08-06T17:01:30.403Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-06T17:01:30.417Z [info]: Connected to the database.
+2024-08-06T17:05:08.253Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-06T17:05:08.267Z [info]: Connected to the database.
+2024-08-06T17:07:14.648Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-06T17:07:14.666Z [info]: Connected to the database.
