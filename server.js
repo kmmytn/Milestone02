@@ -48,7 +48,8 @@ app.use(session({
         secure: true,
         httpOnly: true,
         path: '/',
-        maxAge: 3600000 // 1 hour
+        maxAge: 3600000, // 1 hour
+        sameSite: 'strict'
     },
     genid: function(req) { // Custom session ID generator
         return crypto.randomBytes(16).toString('hex'); // Generates a 32-character long session ID
@@ -56,14 +57,19 @@ app.use(session({
 }));
 
 // Setup CSRF protection
-const csrfProtection = csurf({ cookie: true });
+const csrfProtection = csurf({
+    cookie:{
+        httpOnly: true, // Ensures the CSRF cookie is not accessible via JavaScript
+        secure: true, // Ensures the CSRF cookie is sent only over HTTPS
+        sameSite: 'strict' // Protects against CSRF attacks by allowing cookies to be sent only for same-site requests
+    }
+});
 app.use(csrfProtection);
 
-// Middleware to set CSRF token in the response locals and in a cookie
+// Middleware to set CSRF token in the response locals
 app.use((req, res, next) => {
-    const token = req.csrfToken();
-    res.cookie('XSRF-TOKEN', token); // Set CSRF token in a cookie named 'XSRF-TOKEN'
-    res.locals.csrfToken = token; // Make CSRF token available in templates
+    res.locals.csrfToken = req.csrfToken(); // Make CSRF token available in templates
+    res.cookie('CSRF-TOKEN', res.locals.csrfToken);
     next();
 });
 
@@ -78,6 +84,7 @@ app.use((req, res, next) => {
 
     // X-Content-Type-Options: nosniff - Prevents the browser from interpreting files as a different MIME type to what is specified
     res.setHeader('X-Content-Type-Options', 'nosniff');
+
     next();
 });
 

@@ -578,3 +578,42 @@
 2024-08-07T07:15:11.792Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
 2024-08-07T07:15:13.428Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
 2024-08-07T07:15:16.031Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T09:04:27.293Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:04:27.377Z [info]: Connected to the database.
+2024-08-07T09:05:36.203Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:05:36.251Z [info]: Connected to the database.
+2024-08-07T09:07:26.371Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:07:26.384Z [info]: Connected to the database.
+2024-08-07T09:07:49.404Z [info]: Renewed session from ef3f81d04d2102c83c634c13a12ac492 to 21cfa9eb7d84eb8f8c5b34b678682220
+2024-08-07T09:07:49.437Z [info]: User logged in successfully: chanel@gmail.com
+2024-08-07T09:07:51.160Z [info]: authentication - chanel@gmail.com: User performed authentication action: User logged in successfully
+2024-08-07T09:07:51.298Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T09:07:51.313Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-08-07T09:13:06.001Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:13:06.014Z [info]: Connected to the database.
+2024-08-07T09:17:41.436Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:17:41.446Z [info]: Connected to the database.
+2024-08-07T09:19:43.861Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:19:43.873Z [info]: Connected to the database.
+2024-08-07T09:22:16.700Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:22:16.721Z [info]: Connected to the database.
+2024-08-07T09:40:28.033Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:40:28.049Z [info]: Connected to the database.
+2024-08-07T09:41:21.006Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:41:21.015Z [info]: Connected to the database.
+2024-08-07T09:45:59.328Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:45:59.341Z [info]: Connected to the database.
+2024-08-07T09:46:37.727Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:46:37.740Z [info]: Connected to the database.
+2024-08-07T09:47:05.854Z [info]: Renewed session from a96ac237b83e305c22e573af50668b08 to a478045428211ed53ccccae2ec6b37bb
+2024-08-07T09:47:05.863Z [info]: User logged in successfully: chanel@gmail.com
+2024-08-07T09:47:07.750Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T09:47:07.794Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-08-07T09:47:13.234Z [info]: User logged out: chanel@gmail.com
+2024-08-07T09:50:29.503Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T09:50:29.514Z [info]: Connected to the database.
+2024-08-07T09:50:41.652Z [info]: Renewed session from ac269c8690864a647d5fa6acd60b9008 to 9497a7c1905ef98d385c1ab6bb08a2d9
+2024-08-07T09:50:41.659Z [info]: User logged in successfully: chanel@gmail.com
+2024-08-07T09:50:43.026Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T09:50:43.093Z [info]: transaction - chanel@gmail.com: User performed transaction action: Fetched and displayed posts
+2024-08-07T09:50:49.512Z [info]: User logged out: chanel@gmail.com
