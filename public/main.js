@@ -91,12 +91,15 @@
   }
 
 // Centralized error handling function
-function handleError(context, error, email = 'system') {
-    // Log to console for immediate visibility
-    console.error(`${context}: ${error.message}`);
+function handleError(context, error, email) {
+  // Log to console for immediate visibility
+  console.error(`${context}: ${error.message}`);
 
-    // Send log to the server if necessary
-    sendErrorLog(type,email, `${context}: ${error.message}`);
+  // Send log to the server if necessary
+  sendErrorLog(type, email, `${context}: ${error.message}`).finally(() => {
+      // Force logout and redirect to index page
+      window.location.href = 'index.html';
+  });
 }
   
   // Function to get the CSRF token from the cookie

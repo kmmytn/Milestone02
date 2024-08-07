@@ -96,7 +96,10 @@ function handleError(context, error, email) {
     console.error(`${context}: ${error.message}`);
 
     // Send log to the server if necessary
-    sendErrorLog(type,email, `${context}: ${error.message}`);
+    sendErrorLog(type, email, `${context}: ${error.message}`).finally(() => {
+        // Force logout and redirect to index page
+        window.location.href = 'index.html';
+    });
 }
 
 // Log actions for authentication, transactions, and administrative actions

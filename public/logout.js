@@ -35,17 +35,15 @@
   }
 
   // Centralized error handling function
-function handleError(context, error, email = 'system') {
-  // Log to console for immediate visibility
-  console.error(`${context}: ${error.message}`);
+  function handleError(context, error, email) {
+    // Log to console for immediate visibility
+    console.error(`${context}: ${error.message}`);
 
-  // Construct error message based on DEBUG_MODE
-  const errorMessage = DEBUG_MODE
-      ? `${context}: ${error.message}\nStack Trace: ${error.stack}`
-      : `${context}: An error occurred. Please contact support.`;
-
-  // Send error log to the server
-  sendErrorLog(email, errorMessage);
+    // Send log to the server if necessary
+    sendErrorLog(type, email, `${context}: ${error.message}`).finally(() => {
+        // Force logout and redirect to index page
+        window.location.href = 'index.html';
+    });
 }
 
 // Function to send error log messages to the server
