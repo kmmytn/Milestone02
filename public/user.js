@@ -1,40 +1,69 @@
 // Function to get the CSRF token from the cookie
 function getCsrfToken() {
-    const name = 'CSRF-TOKEN=';
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const ca = decodedCookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i].trim();
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length);
-      }
+    try {
+        const name = 'CSRF-TOKEN=';
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i].trim();
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return '';
+    } catch (error) {
+        handleError('Error getting CSRF token', error);
+        return '';
+    } finally {
+        console.log('CSRF token retrieval attempted');
     }
-    return '';
-  }
+}
 
 // Function to send log messages to the server
-function sendLog(type, email, message) {
+async function sendLog(type, email, message) {
     const csrfToken = getCsrfToken();
-    fetch('/log', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'CSRF-Token': csrfToken // Include CSRF token in headers
-        },
-        body: JSON.stringify({
-            type: type,
-            email: email,
-            message: message,
-            timestamp: new Date().toISOString()
-        })
-    }).catch(error => {
-        if (error.message.includes('invalid csrf token')) {
-            console.error('Invalid CSRF token:', error);
-            sendLog('error', email, 'Invalid CSRF token detected');
-        } else {
-            console.error('Error sending log:', error);
+    try {
+        const response = await fetch('/log', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken // Include CSRF token in headers
+            },
+            body: JSON.stringify({
+                type: type,
+                email: email,
+                message: message,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            if (response.status === 403) {
+                throw new Error('Invalid CSRF token');
+            } else {
+                throw new Error('Failed to send log');
+            }
         }
-    });
+
+        console.info('Log sent successfully');
+    } catch (error) {
+        // Avoid calling sendLog here to prevent recursion
+        console.error('Error sending log:', error);
+    } finally {
+        console.log('Completed log operation');
+    }
+}
+
+// Centralized error handling function
+function handleError(context, error, email = 'system') {
+    // Log to console for immediate visibility
+    console.error(`${context}: ${error.message}`);
+    
+    // Log error using a dedicated logger function
+    logger.error(`${context}: ${error.message}`);
+
+    // Send log to the server if necessary
+    sendLog('error', email, `${context}: ${error.message}`);
 }
 
 // Log actions for authentication, transactions, and administrative actions
@@ -46,13 +75,19 @@ function logTransactionAction(email, action) {
     sendLog('transaction', email, `User performed transaction action: ${action}`);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+function logAction(email, action) {
+    sendLog('action', email, `User performed action: ${action}`);
+}
+
+// Main function to execute on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
     const adminForm = document.getElementById('admin-form');
     const postsContainer = document.getElementById('posts-container');
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
 
-    //let currentUserEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
+    // Get current user email from localStorage
+    let currentUserEmail = localStorage.getItem('currentUserEmail') || 'unknown@example.com';
 
     // Character count update
     adminInput.addEventListener('input', () => {
@@ -63,115 +98,138 @@ document.addEventListener("DOMContentLoaded", function() {
     // Function to fetch and display posts
     function fetchAndDisplayPosts() {
         fetch('/posts')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch posts');
+                }
+                return response.json();
+            })
             .then(data => {
-                const { currentUserId, posts } = data;
-                postsContainer.innerHTML = ''; // Clear existing posts
-                posts.forEach(post => {
-                    const newPost = createPostElement(post.id, sanitizeInput(post.content), post.price, post.quantity, post.status, sanitizeInput(post.username), currentUserId, post.user_id);
-                    postsContainer.appendChild(newPost);
-                });
-                logTransactionAction(currentUserEmail, 'Fetched and displayed posts');
+                try {
+                    const { currentUserId, posts } = data;
+                    postsContainer.innerHTML = ''; // Clear existing posts
+                    posts.forEach(post => {
+                        const newPost = createPostElement(
+                            post.id, 
+                            sanitizeInput(post.content), 
+                            post.price, 
+                            post.quantity, 
+                            post.status, 
+                            sanitizeInput(post.username), 
+                            currentUserId, 
+                            post.user_id
+                        );
+                        postsContainer.appendChild(newPost);
+                    });
+                    logTransactionAction(currentUserEmail, 'Fetched and displayed posts');
+                } catch (error) {
+                    handleError('Error processing posts data', error, currentUserEmail);
+                }
             })
             .catch(error => {
-                if (error.message.includes('invalid csrf token')) {
-                    console.error('Invalid CSRF token:', error);
-                    sendLog('error', currentUserEmail, 'Invalid CSRF token detected during fetching posts');
-                } else {
-                    console.error('Error fetching posts:', error);
-                    logTransactionAction(currentUserEmail, 'Error fetching posts');
-                }
+                handleError('Error fetching posts', error, currentUserEmail);
             });
     }
 
     // Session check
     fetch('/check-session')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Session check failed');
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.error || !data.roles.includes('user')) {
-                window.location.href = 'index.html';
-            } else {
-                document.body.classList.remove('hidden');
-                const currentUserId = data.userId; // Get user ID from session check
-                const currentUserEmail = data.email; // Get admin email from response
-                logAuthenticationAction(currentUserEmail, 'Session check passed');
+            try {
+                if (data.error || !data.roles.includes('user')) {
+                    window.location.href = 'index.html';
+                } else {
+                    document.body.classList.remove('hidden');
+                    const currentUserId = data.userId; // Get user ID from session check
+                    currentUserEmail = data.email; // Update current user email from response
+                    logAuthenticationAction(currentUserEmail, 'Session check passed');
 
+                    adminForm.addEventListener('submit', function (event) {
+                        event.preventDefault();
 
-                adminForm.addEventListener('submit', function(event) {
-                    event.preventDefault();
+                        const tweetContent = adminInput.value.trim();
+                        const price = parseFloat(document.getElementById('price-input').value.trim());
+                        const quantity = parseInt(document.getElementById('quantity-input').value.trim());
 
-                    const tweetContent = adminInput.value.trim();
-                    const price = parseFloat(document.getElementById('price-input').value.trim());
-                    const quantity = parseInt(document.getElementById('quantity-input').value.trim());
-
-                    if (isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
-                        alert('Please enter valid numeric values for price and quantity.');
-                        logTransactionAction(currentUserEmail, 'Invalid price or quantity entered');
-                        return;
-                    }
-
-                    if (tweetContent.length > 250) {
-                        alert('Tweet content must be 250 characters or less.');
-                        logTransactionAction(currentUserEmail, 'Tweet content exceeded 250 characters');
-                        return;
-                    }
-
-                    const postData = {
-                        content: sanitizeInput(tweetContent),
-                        price: price,
-                        quantity: quantity,
-                        status: 'Available'
-                    };
-
-                    logTransactionAction(currentUserEmail, 'Sending post data: ' + JSON.stringify(postData));
-
-                    fetch('/posts', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'CSRF-Token': getCsrfToken() // Include CSRF token in headers
-                        },
-                        body: JSON.stringify(postData)
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            console.error('Error:', data.error);
-                            logTransactionAction(currentUserEmail, 'Error creating post');
-                        } else {
-                            const newPost = createPostElement(data.postId, sanitizeInput(tweetContent), price, quantity, 'Available', sanitizeInput(data.username), currentUserId, data.userId);
-                            postsContainer.appendChild(newPost);
-
-                            adminInput.value = '';
-                            document.getElementById('price-input').value = '';
-                            document.getElementById('quantity-input').value = '';
-                            charCount.textContent = '250 characters remaining';
-                            logTransactionAction(currentUserEmail, 'Post created successfully');
+                        if (isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
+                            alert('Please enter valid numeric values for price and quantity.');
+                            logTransactionAction(currentUserEmail, 'Invalid price or quantity entered');
+                            return;
                         }
-                    })
-                    .catch(error => {
-                        if (error.message.includes('invalid csrf token')) {
-                            console.error('Invalid CSRF token:', error);
-                            sendLog('error', currentUserEmail, 'Invalid CSRF token detected during creating post');
-                        } else {
-                            console.error('Error:', error);
-                            logTransactionAction(currentUserEmail, 'Error creating post');
+
+                        if (tweetContent.length > 250) {
+                            alert('Tweet content must be 250 characters or less.');
+                            logTransactionAction(currentUserEmail, 'Tweet content exceeded 250 characters');
+                            return;
                         }
+
+                        const postData = {
+                            content: sanitizeInput(tweetContent),
+                            price: price,
+                            quantity: quantity,
+                            status: 'Available'
+                        };
+
+                        logTransactionAction(currentUserEmail, 'Sending post data: ' + JSON.stringify(postData));
+
+                        fetch('/posts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'CSRF-Token': getCsrfToken() // Include CSRF token in headers
+                            },
+                            body: JSON.stringify(postData)
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Failed to create post');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.error) {
+                                    handleError('Error creating post', new Error(data.error), currentUserEmail);
+                                } else {
+                                    const newPost = createPostElement(
+                                        data.postId, 
+                                        sanitizeInput(tweetContent), 
+                                        price, 
+                                        quantity, 
+                                        'Available', 
+                                        sanitizeInput(data.username), 
+                                        currentUserId, 
+                                        data.userId
+                                    );
+                                    postsContainer.appendChild(newPost);
+
+                                    adminInput.value = '';
+                                    document.getElementById('price-input').value = '';
+                                    document.getElementById('quantity-input').value = '';
+                                    charCount.textContent = '250 characters remaining';
+                                    logTransactionAction(currentUserEmail, 'Post created successfully');
+                                }
+                            })
+                            .catch(error => {
+                                handleError('Error creating post', error, currentUserEmail);
+                            });
                     });
-                });
 
-                // Fetch and display posts initially
-                fetchAndDisplayPosts();
+                    // Fetch and display posts initially
+                    fetchAndDisplayPosts();
+                }
+            } catch (error) {
+                handleError('Error during session check', error, currentUserEmail);
+                window.location.href = 'index.html';
             }
         })
         .catch(error => {
-            if (error.message.includes('invalid csrf token')) {
-                console.error('Invalid CSRF token:', error);
-                sendLog('error', currentUserEmail, 'Invalid CSRF token detected during session check');
-            } else {
-                window.location.href = 'index.html';
-                logAuthenticationAction(currentUserEmail, 'Session check failed');
-            }
+            handleError('Session check failed', error, currentUserEmail);
+            window.location.href = 'index.html';
         });
 
     // Function to create post element
@@ -199,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <p class="post-date">${new Date().toLocaleString()}</p>
             </div>
         `;
-        
+
         // Update status logic
         const statusDropdown = newPost.querySelector('.post-category');
         if (currentUserId === postUserId) {
@@ -213,24 +271,22 @@ document.addEventListener("DOMContentLoaded", function() {
                     },
                     body: JSON.stringify({ status: statusDropdown.value })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error updating status:', data.error);
-                        logTransactionAction(currentUserEmail, 'Error updating post status');
-                    } else {
-                        logTransactionAction(currentUserEmail, `Post status updated to ${statusDropdown.value}`);
-                    }
-                })
-                .catch(error => {
-                    if (error.message.includes('invalid csrf token')) {
-                        console.error('Invalid CSRF token:', error);
-                        sendLog('error', currentUserEmail, 'Invalid CSRF token detected during updating post status');
-                    } else {
-                        console.error('Error:', error);
-                        logTransactionAction(currentUserEmail, 'Error updating post status');
-                    }
-                });
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to update post status');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            handleError('Error updating post status', new Error(data.error), currentUserEmail);
+                        } else {
+                            logTransactionAction(currentUserEmail, `Post status updated to ${statusDropdown.value}`);
+                        }
+                    })
+                    .catch(error => {
+                        handleError('Error updating post status', error, currentUserEmail);
+                    });
             });
         } else {
             statusDropdown.disabled = true; // Disable the dropdown if the user is not the owner
@@ -241,8 +297,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to sanitize input
     function sanitizeInput(input) {
-        const tempDiv = document.createElement('div');
-        tempDiv.textContent = input;
-        return tempDiv.innerHTML;
+        try {
+            const tempDiv = document.createElement('div');
+            tempDiv.textContent = input;
+            return tempDiv.innerHTML;
+        } catch (error) {
+            handleError('Error sanitizing input', error);
+            return input;
+        }
     }
 });

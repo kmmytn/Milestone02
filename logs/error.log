@@ -1,4 +1,0 @@
-2024-07-19T14:11:27.905Z [error]: Database query error: ER_NO_SUCH_TABLE: Table 'cssecdv.non_existing_table' doesn't exist
-2024-07-20T11:28:52.221Z [error]: Database query error: ER_BAD_FIELD_ERROR: Unknown column 'user.email' in 'field list'
-2024-07-21T05:47:06.762Z [error]: Database query error: WARN_DATA_TRUNCATED: Data truncated for column 'status' at row 1
-2024-07-21T05:47:36.385Z [error]: Database query error: WARN_DATA_TRUNCATED: Data truncated for column 'status' at row 1

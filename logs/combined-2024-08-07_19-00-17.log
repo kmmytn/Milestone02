@@ -1,0 +1,18 @@
+2024-08-07T11:00:17.442Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T11:00:17.452Z [info]: Connected to the database.
+2024-08-07T11:00:23.649Z [info]: Renewed session from 910a3af649b52ed718275f66b839e805 to 3fe2c23e4f7a7e6aba6b656103b4a1e4
+2024-08-07T11:00:23.655Z [info]: User logged in successfully: chanel@gmail.com
+2024-08-07T11:00:24.561Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T11:00:24.606Z [info]: transaction - undefined: User performed transaction action: Fetched and displayed posts
+2024-08-07T11:00:25.497Z [info]: User logged out: chanel@gmail.com
+2024-08-07T11:00:41.489Z [info]: Renewed session from c68426c68724bb9b3c961e5318f9eb3a to 0dbc8f90b9512e2c6d21a6c34ccfd4f0
+2024-08-07T11:00:41.502Z [info]: User logged in successfully: admin@gmail.com
+2024-08-07T11:00:43.617Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T11:00:43.634Z [info]: admin - undefined: Admin performed action: Fetched and displayed posts
+2024-08-07T11:00:48.587Z [info]: error - admin@gmail.com: Error during session check: Unexpected session check error
+2024-08-07T11:00:53.601Z [info]: error - admin@gmail.com: Error during session check: Unexpected session check error
+2024-08-07T11:00:58.711Z [info]: error - admin@gmail.com: Error during session check: Unexpected session check error
+2024-08-07T11:01:03.892Z [info]: error - admin@gmail.com: Error during session check: Unexpected session check error
+2024-08-07T11:01:33.245Z [info]: error - admin@gmail.com: Error during session check: Unexpected session check error
+2024-08-07T11:01:34.944Z [info]: User logged out: admin@gmail.com
+2024-08-07T11:01:57.484Z [info]: SIGINT received, setting log files to read-only...
