@@ -63,9 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const charCount = document.getElementById('char-count');
 
     //let currentAdminEmail = localStorage.getItem('currentUserEmail'); // Retrieve from local storage
-
     
-
     // Character count update
     adminInput.addEventListener('input', () => {
         const remaining = 250 - adminInput.value.length;

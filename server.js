@@ -13,6 +13,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const csurf = require('csurf');
 const cookieParser = require('cookie-parser');
+const crypto = require('crypto');
 
 const logsDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -48,6 +49,9 @@ app.use(session({
         httpOnly: true,
         path: '/',
         maxAge: 3600000 // 1 hour
+    },
+    genid: function(req) { // Custom session ID generator
+        return crypto.randomBytes(16).toString('hex'); // Generates a 32-character long session ID
     }
 }));
 

@@ -371,3 +371,210 @@
 2024-08-06T17:05:08.267Z [info]: Connected to the database.
 2024-08-06T17:07:14.648Z [info]: HTTPS Server listening at https://localhost:3000
 2024-08-06T17:07:14.666Z [info]: Connected to the database.
+2024-08-06T19:16:36.790Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-06T19:16:36.901Z [info]: Connected to the database.
+2024-08-06T19:17:21.400Z [info]: User signed up successfully: janina_bongon@dlsu.edu.ph
+2024-08-06T19:17:22.288Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User signed up successfully
+2024-08-06T19:17:25.353Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-06T19:17:26.392Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-06T19:17:26.468Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-06T19:17:26.478Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T05:44:14.547Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T05:44:14.563Z [info]: Connected to the database.
+2024-08-07T05:47:03.996Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T05:47:04.012Z [info]: Connected to the database.
+2024-08-07T05:47:12.481Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T05:47:13.732Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T05:47:13.917Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T05:47:13.949Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T05:49:16.360Z [warn]: Session timed out
+2024-08-07T05:49:17.864Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T06:31:38.520Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T06:31:38.534Z [info]: Connected to the database.
+2024-08-07T06:31:43.605Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T06:31:44.703Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T06:31:44.842Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:31:44.864Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T06:32:16.855Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T06:32:17.787Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T06:35:58.639Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T06:35:58.651Z [info]: Connected to the database.
+2024-08-07T06:36:07.603Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T06:36:08.564Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T06:36:08.680Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:36:08.693Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T06:40:14.187Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T06:40:14.198Z [info]: Connected to the database.
+2024-08-07T06:40:24.288Z [info]: Renewed session from b9f3226429db04739da3db9b286c9da7 to 6a6b384e15b7c941726960933fa46920
+2024-08-07T06:40:24.292Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T06:40:25.134Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T06:40:25.283Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:40:25.434Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T06:48:05.747Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T06:48:05.759Z [info]: Connected to the database.
+2024-08-07T06:48:14.257Z [info]: Renewed session from 9f0a464cf3bc3b346dbaa3241a69971a to 3c720b43f30ca60b513bb5086e7955e8
+2024-08-07T06:48:14.264Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T06:48:15.437Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T06:48:15.612Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:48:15.651Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T06:48:32.719Z [info]: transaction - undefined: User performed transaction action: Sending post data: {"content":"Heeseung Specs","price":1000,"quantity":1,"status":"Available"}
+2024-08-07T06:48:32.742Z [info]: Post created by Janina Alexia Bongon
+2024-08-07T06:48:32.748Z [info]: transaction - undefined: User performed transaction action: Post created successfully
+2024-08-07T06:49:16.387Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T06:49:17.757Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T06:49:30.299Z [info]: User signed up successfully: janina.alexia@gmail.com
+2024-08-07T06:49:31.853Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User signed up successfully
+2024-08-07T06:50:10.628Z [info]: Renewed session from a19712bf9d6bc5ddea780184fe6103eb to 48bc85c98f9ed42822aa5e9c7c973dc7
+2024-08-07T06:50:10.631Z [info]: User logged in successfully: janina.alexia@gmail.com
+2024-08-07T06:50:11.580Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User logged in successfully
+2024-08-07T06:50:11.581Z [info]: admin - janina.alexia@gmail.com: Admin performed action: Admin logged in
+2024-08-07T06:50:11.690Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:50:54.976Z [info]: User logged out: janina.alexia@gmail.com
+2024-08-07T06:50:56.713Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User logged out successfully
+2024-08-07T06:51:04.284Z [info]: Renewed session from eb294d87d11f05af2891ab8bcbcb226c to b9853b05175c190c76d7aeb40b13bc84
+2024-08-07T06:51:04.287Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T06:51:05.262Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T06:51:05.352Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:51:05.374Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T06:51:33.603Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T06:51:34.681Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T06:51:41.450Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T06:51:42.479Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T06:53:12.486Z [info]: Renewed session from 5779cfd96bd54e95b3036a5fcef19e99 to f2e67ddae485a73e7795d58bef044276
+2024-08-07T06:53:12.490Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T06:53:13.597Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T06:53:13.735Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T06:53:13.892Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T06:53:21.020Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T06:53:22.181Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T07:00:52.973Z [info]: Renewed session from 52a48dc1b0234ea22ad5c4f5788d5f31 to 6c63cc95be61043cab64d6674b662ce6
+2024-08-07T07:00:52.976Z [info]: User logged in successfully: janina.alexia@gmail.com
+2024-08-07T07:00:53.882Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User logged in successfully
+2024-08-07T07:00:53.883Z [info]: admin - janina.alexia@gmail.com: Admin performed action: Admin logged in
+2024-08-07T07:00:54.086Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:00:57.618Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:01:00.728Z [info]: User logged out: janina.alexia@gmail.com
+2024-08-07T07:01:01.538Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User logged out successfully
+2024-08-07T07:01:04.433Z [info]: Renewed session from 02cab172b4f03e46a0b0412859e2cf2c to d8e5c7eb766ac14677ce101b20e2b7d3
+2024-08-07T07:01:04.436Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:01:05.729Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:01:05.828Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:01:05.864Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:01:09.140Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:01:11.143Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:01:12.362Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:01:15.391Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:01:15.572Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:01:17.509Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:01:17.864Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:01:18.951Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:01:51.274Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T07:01:51.277Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T07:03:33.002Z [info]: Renewed session from aff54e782de279dab8049f3b9b47203b to 35cd56c47d8d924e8944a81700db03d1
+2024-08-07T07:03:33.005Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:03:33.979Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:03:34.274Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:03:34.558Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:03:36.161Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:03:37.420Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:03:38.374Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T07:03:39.456Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T07:03:40.139Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T07:03:48.519Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T07:03:48.530Z [info]: Connected to the database.
+2024-08-07T07:03:54.532Z [info]: Renewed session from 7a9cf90850c660eba2376793a72d1c44 to cd7597b55d3e9da27a69270b77df204c
+2024-08-07T07:03:54.537Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:03:55.435Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:03:55.591Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:03:55.641Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:03:57.678Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:03:59.385Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:04:01.480Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:04:02.312Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:04:13.225Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:04:13.480Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:04:15.217Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:04:15.998Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:04:16.281Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:05:33.177Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T07:05:33.189Z [info]: Connected to the database.
+2024-08-07T07:05:40.549Z [info]: Renewed session from bf447196f06f4228da65b8176473e6f3 to ba1059c124b9f11cf5a0a2a6c480f90f
+2024-08-07T07:05:40.553Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:05:41.359Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:05:41.495Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:05:41.628Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:05:44.525Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:05:51.239Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:05:51.522Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:06:26.276Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T07:06:26.280Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T07:06:26.292Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T07:09:18.830Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T07:09:18.841Z [info]: Connected to the database.
+2024-08-07T07:09:28.009Z [info]: Renewed session from 6db080cebeb5ee465c61bfafa20b8988 to e83b53f29da4356c079b1e8cf9894c79
+2024-08-07T07:09:28.013Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:09:28.814Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:09:28.949Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:09:29.164Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:09:31.054Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:09:31.951Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:09:33.111Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:09:34.124Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:09:37.157Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T07:09:38.098Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T07:09:42.168Z [info]: Renewed session from 5511e3aaa5eee9501eebbe1d36432fdb to f58bf51f3b915e5b11f76ddc12e2fc76
+2024-08-07T07:09:42.171Z [info]: User logged in successfully: janina.alexia@gmail.com
+2024-08-07T07:09:42.937Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User logged in successfully
+2024-08-07T07:09:42.938Z [info]: admin - janina.alexia@gmail.com: Admin performed action: Admin logged in
+2024-08-07T07:09:43.061Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:10:18.291Z [info]: User logged out: janina.alexia@gmail.com
+2024-08-07T07:10:18.297Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: Session timed out
+2024-08-07T07:11:04.218Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T07:11:04.229Z [info]: Connected to the database.
+2024-08-07T07:11:14.538Z [info]: Renewed session from 1ff64f6a6e8ffbbf623fae71d55170cf to dff7a4d4b17ca7ed2cce2bbb0937aa60
+2024-08-07T07:11:14.543Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:11:15.404Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:11:15.525Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:11:15.565Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:11:18.107Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:11:18.542Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:11:18.822Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:11:20.014Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:11:20.517Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:11:20.884Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:12:01.279Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T07:12:01.284Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T07:12:01.296Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: Session timed out
+2024-08-07T07:13:27.938Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T07:13:27.949Z [info]: Connected to the database.
+2024-08-07T07:13:34.260Z [info]: Renewed session from 6a2140a6f047de02d8dd1c4b4c3be092 to 76db46f4db80f11b3bc82cb7a7c52e9c
+2024-08-07T07:13:34.265Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:13:35.059Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:13:35.263Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:13:35.509Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:13:37.014Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:13:37.779Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:13:38.042Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:13:38.986Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:13:39.704Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:13:39.960Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:13:41.335Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold
+2024-08-07T07:13:42.385Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:13:42.715Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:13:47.513Z [info]: User logged out: janina_bongon@dlsu.edu.ph
+2024-08-07T07:13:48.594Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged out successfully
+2024-08-07T07:13:52.114Z [info]: Renewed session from 589e758d0c03907c4fc39ca03ba5cfc9 to d99f6b7312f2279ded59fc1c7891dcd6
+2024-08-07T07:13:52.118Z [info]: User logged in successfully: janina.alexia@gmail.com
+2024-08-07T07:13:53.626Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: User logged in successfully
+2024-08-07T07:13:53.627Z [info]: admin - janina.alexia@gmail.com: Admin performed action: Admin logged in
+2024-08-07T07:13:53.764Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:14:59.296Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T07:14:59.312Z [info]: Connected to the database.
+2024-08-07T07:15:03.254Z [info]: authentication - janina.alexia@gmail.com: User performed authentication action: Session timed out
+2024-08-07T07:15:10.855Z [info]: Renewed session from 709231761a1e598f19cd1ae371b8fef3 to f6cc0bf8f144f62f4cad7382ed3e06ac
+2024-08-07T07:15:10.860Z [info]: User logged in successfully: janina_bongon@dlsu.edu.ph
+2024-08-07T07:15:11.592Z [info]: authentication - janina_bongon@dlsu.edu.ph: User performed authentication action: User logged in successfully
+2024-08-07T07:15:11.750Z [info]: authentication - undefined: User performed authentication action: Session check passed
+2024-08-07T07:15:11.792Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Fetched and displayed posts
+2024-08-07T07:15:13.428Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Available
+2024-08-07T07:15:16.031Z [info]: transaction - janina_bongon@dlsu.edu.ph: User performed transaction action: Post status updated to Sold

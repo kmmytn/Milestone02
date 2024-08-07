@@ -151,7 +151,7 @@ router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
 });
 
 
-router.post('/login', trackLoginAttempts, async (req, res) => {
+router.post('/login', trackLoginAttempts, async (req, res) => { // Apply trackLoginAttempts middleware here
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -176,36 +176,40 @@ router.post('/login', trackLoginAttempts, async (req, res) => {
                 return handleFailedLoginAttempt(req, res);
             }
 
-            req.session.user = { id: user.id, email: user.email, full_name: user.full_name };
-            req.session.lastActivity = Date.now();
-            req.session.loginAttempts[req.ip] = { attempts: 0, lockUntil: null }; // Reset attempts on successful login
-
-            const sessionId = crypto.randomBytes(16).toString('hex'); // Generate a 16-byte session ID
-
-            // Store sessionId in the database
-            const sessionSql = 'INSERT INTO sessions (user_id, session_id) VALUES (?, ?)';
-            db.query(sessionSql, [user.id, sessionId], (sessionErr) => {
-                if (sessionErr) {
-                    return handleError(res, sessionErr, 'Error creating session.');
+            // Renew the session ID after successful authentication
+            renewSession(req, res, async (renewErr) => {
+                if (renewErr) {
+                    return handleError(res, renewErr, 'Error renewing session.');
                 }
 
-                // Fetch user roles
-                const roleSql = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
-                db.query(roleSql, [user.id], (roleErr, roleResults) => {
-                    if (roleErr) {
-                        return handleError(res, roleErr, 'Error fetching user roles.');
+                req.session.user = { id: user.id, email: user.email, full_name: user.full_name };
+                req.session.lastActivity = Date.now();
+
+                // Insert session ID into the database
+                const insertSessionSql = 'INSERT INTO sessions (user_id, session_id) VALUES (?, ?)';
+                db.query(insertSessionSql, [user.id, req.sessionID], (sessionErr) => {
+                    if (sessionErr) {
+                        return handleError(res, sessionErr, 'Error inserting session ID.');
                     }
 
-                    const roles = roleResults.map(role => role.name);
+                    // Fetch user roles
+                    const roleSql = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
+                    db.query(roleSql, [user.id], (roleErr, roleResults) => {
+                        if (roleErr) {
+                            return handleError(res, roleErr, 'Error fetching user roles.');
+                        }
 
-                    // Store roles in session
-                    req.session.roles = roles;
+                        const roles = roleResults.map(role => role.name);
 
-                    logger.info(`User logged in successfully: ${email}`);
-                    res.status(200).json({
-                        message: 'Logged in successfully.',
-                        sessionId,
-                        roles // Return roles to the client
+                        // Store roles in session
+                        req.session.roles = roles;
+
+                        logger.info(`User logged in successfully: ${email}`);
+                        res.status(200).json({
+                            message: 'Logged in successfully.',
+                            sessionId: req.sessionID, // Use the renewed session ID
+                            roles // Return roles to the client
+                        });
                     });
                 });
             });
@@ -406,5 +410,35 @@ router.get('/check-session', checkSessionTimeout, (req, res) => {
         res.status(401).json({ error: 'Session expired.' });
     }
 });
+
+function validateSession(req, res, next) {
+    const sessionId = req.sessionID;
+    const sql = 'SELECT * FROM sessions WHERE session_id = ?';
+    db.query(sql, [sessionId], (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(401).json({ error: 'Invalid session.' });
+        }
+        next();
+    });
+}
+
+router.use(validateSession); // Apply globally
+
+function renewSession(req, res, next) {
+    const oldSessionId = req.sessionID;
+    req.session.regenerate((err) => {
+        if (err) {
+            return next(err);
+        }
+        const newSessionId = req.sessionID;
+        logger.info(`Renewed session from ${oldSessionId} to ${newSessionId}`);
+        next();
+    });
+}
+
+router.get('/session-id', (req, res) => {
+    res.json({ sessionId: req.sessionID });
+});
+
 
 module.exports = router;
