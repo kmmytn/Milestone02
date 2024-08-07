@@ -1,5 +1,3 @@
-const { type } = require("os");
-
 // Function to get the CSRF token from the cookie
 function getCsrfToken() {
     try {
