@@ -1,0 +1,9 @@
+2024-08-07T14:44:27.302Z [info]: HTTPS Server listening at https://localhost:3000
+2024-08-07T14:44:27.312Z [info]: Connected to the database.
+2024-08-07T14:44:33.179Z [info]: Renewed session from e701bb133b25f49f2153c57a6b592e65 to ba3b16ef39229c89bf6f1a8500d321b7
+2024-08-07T14:44:33.190Z [info]: User logged in successfully: admin@gmail.com
+2024-08-07T14:44:33.964Z [error]: error - [object Object]: An error occurred
+2024-08-07T14:44:34.165Z [info]: authentication - admin@gmail.com: User performed authentication action: Session check passed
+2024-08-07T14:44:34.249Z [info]: admin - admin@gmail.com: Admin performed action: Fetched and displayed posts
+2024-08-07T14:46:20.468Z [warn]: Session timed out
+2024-08-07T14:48:38.470Z [info]: SIGINT received, setting log files to read-only...

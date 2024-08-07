@@ -1,3 +1,5 @@
+const { type } = require("os");
+
 // Function to get the CSRF token from the cookie
 function getCsrfToken() {
     try {
@@ -31,7 +33,7 @@ async function sendLog(type, email, message) {
             },
             body: JSON.stringify({
                 type: type,
-                email: email,
+                email: email,  // Ensure a default value if email is not provided
                 message: message,
                 timestamp: new Date().toISOString()
             })
@@ -54,16 +56,49 @@ async function sendLog(type, email, message) {
     }
 }
 
+async function sendErrorLog(email, context) {
+    const csrfToken = getCsrfToken();
+
+    try {
+        const response = await fetch('/log-error', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken // Include CSRF token in headers
+            },
+            body: JSON.stringify({
+                type: 'error',
+                email: email,
+                message: `${context}`,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            // Handle response errors
+            if (response.status === 403) {
+                throw new Error('Invalid CSRF token');
+            } else {
+                throw new Error('Failed to send error log');
+            }
+        }
+
+        console.info('Error log sent successfully');
+    } catch (logError) {
+        console.error('Error sending error log:', logError);
+    } finally {
+        console.log('Completed error log operation');
+    }
+}
+
+
 // Centralized error handling function
-function handleError(context, error, email = 'system') {
+function handleError(context, error, email) {
     // Log to console for immediate visibility
     console.error(`${context}: ${error.message}`);
-    
-    // Log error using a dedicated logger function
-    logger.error(`${context}: ${error.message}`);
 
     // Send log to the server if necessary
-    sendLog('error', email, `${context}: ${error.message}`);
+    sendErrorLog(type,email, `${context}: ${error.message}`);
 }
 
 // Log actions for authentication, transactions, and administrative actions
@@ -86,9 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
 
-    // Get current user email from localStorage
-    let currentUserEmail = localStorage.getItem('currentUserEmail') || 'unknown@example.com';
-
     // Character count update
     adminInput.addEventListener('input', () => {
         const remaining = 250 - adminInput.value.length;
@@ -96,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Function to fetch and display posts
-    function fetchAndDisplayPosts() {
+    function fetchAndDisplayPosts(currentUserEmail) {
         fetch('/posts')
             .then(response => {
                 if (!response.ok) {
@@ -146,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     document.body.classList.remove('hidden');
                     const currentUserId = data.userId; // Get user ID from session check
-                    currentUserEmail = data.email; // Update current user email from response
+                    const currentUserEmail = data.userEmail; // Use currentUserEmail from session check
                     logAuthenticationAction(currentUserEmail, 'Session check passed');
 
                     adminForm.addEventListener('submit', function (event) {
@@ -212,10 +244,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                     document.getElementById('quantity-input').value = '';
                                     charCount.textContent = '250 characters remaining';
                                     logTransactionAction(currentUserEmail, 'Post created successfully');
-                                    
-                                    // Refresh the post list after creating a post
-                                    fetchAndDisplayPosts();  // <-- Refresh posts to ensure correct IDs and ownership
 
+                                    // Enable status dropdown for the new post
+                                    const statusDropdown = newPost.querySelector('.post-category');
+                                    statusDropdown.disabled = false; // Enable dropdown immediately
                                 }
                             })
                             .catch(error => {
@@ -224,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
 
                     // Fetch and display posts initially
-                    fetchAndDisplayPosts();
+                    fetchAndDisplayPosts(currentUserEmail);
                 }
             } catch (error) {
                 handleError('Error during session check', error, currentUserEmail);
@@ -264,7 +296,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update status logic
         const statusDropdown = newPost.querySelector('.post-category');
-        console.log('Comparing IDs:', currentUserId, postUserId); // Debugging statement
         if (currentUserId === postUserId) {
             statusDropdown.disabled = false; // Ensure it's enabled for the owner
             statusDropdown.addEventListener('change', () => {
@@ -284,13 +315,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     })
                     .then((data) => {
                         if (data.error) {
-                            handleError('Error updating post status', new Error(data.error), currentAdminEmail);
+                            handleError('Error updating post status', new Error(data.error), currentUserEmail);
                         } else {
-                            logAdminAction(currentAdminEmail, `Post status updated to ${statusDropdown.value}`);
+                            logTransactionAction(currentUserEmail, `Post status updated to ${statusDropdown.value}`);
                         }
                     })
                     .catch((error) => {
-                        handleError('Error updating post status', error, currentAdminEmail);
+                        handleError('Error updating post status', error, currentUserEmail);
                     });
             });
         } else {

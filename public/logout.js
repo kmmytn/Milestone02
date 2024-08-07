@@ -33,6 +33,55 @@
       console.log('Completed log operation');
     }
   }
+
+  // Centralized error handling function
+function handleError(context, error, email = 'system') {
+  // Log to console for immediate visibility
+  console.error(`${context}: ${error.message}`);
+
+  // Construct error message based on DEBUG_MODE
+  const errorMessage = DEBUG_MODE
+      ? `${context}: ${error.message}\nStack Trace: ${error.stack}`
+      : `${context}: An error occurred. Please contact support.`;
+
+  // Send error log to the server
+  sendErrorLog(email, errorMessage);
+}
+
+// Function to send error log messages to the server
+async function sendErrorLog(email, message) {
+  const csrfToken = getCsrfToken();
+
+  try {
+      const response = await fetch('/log-error', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'CSRF-Token': csrfToken // Include CSRF token in headers
+          },
+          body: JSON.stringify({
+              type: 'error',
+              email: email,
+              message: message,
+              timestamp: new Date().toISOString()
+          })
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to send error log');
+      }
+
+      console.info('Error log sent successfully');
+  } catch (logError) {
+      console.error('Error sending error log:', logError.message);
+      // In DEBUG_MODE, log the stack trace as well
+      if (DEBUG_MODE) {
+          console.error(logError.stack);
+      }
+  } finally {
+      console.log('Completed error log operation');
+  }
+}
   
   // Log actions for authentication, transactions, and administrative actions
   function logAuthenticationAction(email, action) {
@@ -43,17 +92,6 @@
     sendLog('action', email, `User performed action: ${action}`);
   }
 
-// Centralized error handling function
-function handleError(context, error, email = 'system') {
-    // Log to console for immediate visibility
-    console.error(`${context}: ${error.message}`);
-    
-    // Log error using Winston to both error and combined logs
-    logger.error(`${context}: ${error.message}`);
-
-    // Send log to the server if necessary
-    sendLog('error', email, `${context}: ${error.message}`);
-}
   
   // Function to get the CSRF token from the cookie
   function getCsrfToken() {
@@ -189,9 +227,8 @@ function handleError(context, error, email = 'system') {
         try {
           if (xhr.responseText.includes('invalid csrf token')) {
             handleError('Invalid CSRF token during session check', new Error('Invalid CSRF token'), currentUserEmail);
-          } else {
-            throw new Error('Unexpected session check error');
-          }
+          } 
+          
         } catch (error) {
           handleError('Error during session check', error, currentUserEmail);
         }

@@ -14,7 +14,6 @@ const unlink = promisify(fs.unlink);
 
 const router = express.Router();
 
-
 // Configuration for debug mode
 const config = {
     debug: process.env.DEBUG === 'true'
@@ -98,7 +97,6 @@ const validateFile = async (req, res, next) => {
     }
 };
 
-
 router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
     const { full_name, emailsignup, phone_number, passwordsignup, confirmpassword } = req.body;
     const profilePicturePath = req.file ? req.file.path : null; // Handle file upload
@@ -149,7 +147,6 @@ router.post('/signup', upload.single('pfp'), validateFile, async (req, res) => {
         return handleError(res, hashErr, 'Failed to hash password.');
     }
 });
-
 
 router.post('/login', trackLoginAttempts, async (req, res) => { // Apply trackLoginAttempts middleware here
     const { email, password } = req.body;
@@ -220,99 +217,104 @@ router.post('/login', trackLoginAttempts, async (req, res) => { // Apply trackLo
 });
 
 router.get('/posts', isAuthenticated, (req, res) => {
-    const currentUserId = req.session.user.id;
-    const query = `
-        SELECT posts.id, posts.content, posts.price, posts.quantity, posts.status, posts.created_at, users.full_name as username, posts.user_id
-        FROM posts
-        JOIN users ON posts.user_id = users.id
-    `;
-    db.query(query, (err, results) => {
-        if (err) {
-            return handleError(res, err, 'Database query error');
-        }
-        res.json({ currentUserId, posts: results });
-    });
+    try {
+        const currentUserId = req.session.user.id;
+        const query = `
+            SELECT posts.id, posts.content, posts.price, posts.quantity, posts.status, posts.created_at, users.full_name as username, posts.user_id
+            FROM posts
+            JOIN users ON posts.user_id = users.id
+        `;
+        db.query(query, (err, results) => {
+            if (err) {
+                return handleError(res, err, 'Database query error');
+            }
+            res.json({ currentUserId, posts: results });
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error fetching posts');
+    }
 });
 
 router.post('/posts', isAuthenticated, (req, res) => {
-
-    const { content, price, quantity, status } = req.body;
-    if (!content || !price || !quantity || !status) {
-        logger.error('Invalid post data:', req.body); // Log invalid data
-        return res.status(400).send('Invalid post data');
-    }
-
-    const query = 'INSERT INTO posts (user_id, content, price, quantity, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())';
-    db.query(query, [req.session.user.id, content, price, quantity, status], (err, result) => {
-        if (err) {
-            logger.error('Database error:', err); // Log database errors
-            return handleError(res, err, 'Database query error');
+    try {
+        const { content, price, quantity, status } = req.body;
+        if (!content || !price || !quantity || !status) {
+            logger.error('Invalid post data:', req.body); // Log invalid data
+            return res.status(400).send('Invalid post data');
         }
 
-        // Fetch the username of the user who created the post
-        const fetchUserQuery = 'SELECT full_name as username FROM users WHERE id = ?';
-        db.query(fetchUserQuery, [req.session.user.id], (userErr, userResult) => {
-            if (userErr) {
-                return handleError(res, userErr, 'Database query error');
+        const query = 'INSERT INTO posts (user_id, content, price, quantity, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())';
+        db.query(query, [req.session.user.id, content, price, quantity, status], (err, result) => {
+            if (err) {
+                logger.error('Database error:', err); // Log database errors
+                return handleError(res, err, 'Database query error');
             }
 
-            const username = userResult[0].username;
-            res.json({ message: 'Post created successfully', postId: result.insertId, username });
-            logger.info(`Post created by ${username}`);
+            // Fetch the username of the user who created the post
+            const fetchUserQuery = 'SELECT full_name as username FROM users WHERE id = ?';
+            db.query(fetchUserQuery, [req.session.user.id], (userErr, userResult) => {
+                if (userErr) {
+                    return handleError(res, userErr, 'Database query error');
+                }
+
+                const username = userResult[0].username;
+                res.json({ message: 'Post created successfully', postId: result.insertId, username });
+                logger.info(`Post created by ${username}`);
+            });
         });
-    });
+    } catch (error) {
+        return handleError(res, error, 'Error creating post');
+    }
 });
 
 router.put('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
-    const { id } = req.params;
-    const { content, price, quantity, status } = req.body;
-    const query = 'UPDATE posts SET content = ?, price = ?, quantity = ?, status = ? WHERE id = ?';
-    db.query(query, [content, price, quantity, status, id], (err, result) => {
-        if (err) {
-            return handleError(res, err, 'Database query error');
-        }
-        res.json({ message: 'Post updated successfully' });
-    });
+    try {
+        const { id } = req.params;
+        const { content, price, quantity, status } = req.body;
+        const query = 'UPDATE posts SET content = ?, price = ?, quantity = ?, status = ? WHERE id = ?';
+        db.query(query, [content, price, quantity, status, id], (err, result) => {
+            if (err) {
+                return handleError(res, err, 'Database query error');
+            }
+            res.json({ message: 'Post updated successfully' });
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error updating post');
+    }
 });
 
-
 router.delete('/posts/:id', isAuthenticated, isAdmin, (req, res) => {
-    const { id } = req.params;
-    const query = 'DELETE FROM posts WHERE id = ?';
-    db.query(query, [id], (err, result) => {
-        if (err) {
-            return handleError(res, err, 'Database query error');
-        }
-        res.json({ message: 'Post deleted successfully' });
-    });
+    try {
+        const { id } = req.params;
+        const query = 'DELETE FROM posts WHERE id = ?';
+        db.query(query, [id], (err, result) => {
+            if (err) {
+                return handleError(res, err, 'Database query error');
+            }
+            res.json({ message: 'Post deleted successfully' });
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error deleting post');
+    }
 });
 
 router.put('/update-post-status/:id', isAuthenticated, (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
 
-    const query = 'UPDATE posts SET status = ? WHERE id = ?';
-    db.query(query, [status, id], (err, result) => {
-        if (err) {
-            return handleError(res, err, 'Database query error');
-        }
-        res.json({ message: 'Post status updated successfully' });
-    });
+        const query = 'UPDATE posts SET status = ? WHERE id = ?';
+        db.query(query, [status, id], (err, result) => {
+            if (err) {
+                return handleError(res, err, 'Database query error');
+            }
+            res.json({ message: 'Post status updated successfully' });
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error updating post status');
+    }
 });
 
-// Middleware to check if the user is an admin
-const isAdminPage = (req, res, next) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const query = 'SELECT r.name FROM user_roles ur JOIN roles r ON ur.role_id = r.id WHERE ur.user_id = ?';
-    db.query(query, [req.session.user.id], (err, results) => {
-        if (err || results.length === 0 || !results.some(role => role.name === 'admin')) {
-            return res.status(403).json({ error: 'Forbidden. Admin access required.' });
-        }
-        next();
-    });
-};
 
 // Middleware to check if the user is authenticated
 const isUserPage = (req, res, next) => {
@@ -322,123 +324,188 @@ const isUserPage = (req, res, next) => {
     next();
 };
 
-router.get('/admin.html', isAdminPage, (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+router.get('/admin.html', isAdmin, (req, res) => {
+    try {
+        res.sendFile(path.join(__dirname, 'admin.html'));
+    } catch (error) {
+        return handleError(res, error, 'Error loading admin page');
+    }
 });
 
 router.get('/user.html', isUserPage, (req, res) => {
-    res.sendFile(path.join(__dirname, 'user.html'));
+    try {
+        res.sendFile(path.join(__dirname, 'user.html'));
+    } catch (error) {
+        return handleError(res, error, 'Error loading user page');
+    }
 });
 
 router.post('/logout', (req, res) => {
-    const userEmail = req.session.user ? req.session.user.email : 'Unknown user';
-    req.session.destroy((err) => {
-        if (err) {
-            logger.error(`Error destroying session for user: ${userEmail}`);
-            return res.status(500).json({ error: 'Logout failed.' });
-        }
-        logger.info(`User logged out: ${userEmail}`);
-        return res.status(200).json({ message: 'Logged out successfully.' });
-    });
+    try {
+        const userEmail = req.session.user ? req.session.user.email : 'Unknown user';
+        req.session.destroy((err) => {
+            if (err) {
+                logger.error(`Error destroying session for user: ${userEmail}`);
+                return res.status(500).json({ error: 'Logout failed.' });
+            }
+            logger.info(`User logged out: ${userEmail}`);
+            return res.status(200).json({ message: 'Logged out successfully.' });
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error logging out');
+    }
 });
-
 
 router.post('/log', (req, res) => {
-    const { type, email, message, timestamp } = req.body;
-    logger.log({
-        level: 'info',
-        message: `${type} - ${email}: ${message}`,
-        timestamp: timestamp
-    });
+    try {
+        const { type, email, message, timestamp } = req.body;
+        logger.log({
+            level: 'info',
+            message: `${type} - ${email}: ${message}`,
+            timestamp: timestamp
+        });
 
-    console.log('log data:', req.body);  // Log to console for debugging
+        console.log('log data:', req.body);  // Log to console for debugging
 
-    res.status(200).send('Log received');
+        res.status(200).send('Log received');
+    } catch (error) {
+        return handleError(res, error, 'Error logging data');
+    }
 });
 
+router.post('/log-error', (req, res) => {
+    try {
+        const { type, email, message, timestamp } = req.body;
+        logger.log({
+            level: 'error',
+            message: `${type} - ${email}: ${message}`,
+            timestamp: timestamp
+        });
+
+        console.log('log data:', req.body);  // Log to console for debugging
+
+        res.status(200).send('Log received');
+    } catch (error) {
+        return handleError(res, error, 'Error logging data');
+    }
+});
 
 
 // Middleware to check session timeout
 function checkSessionTimeout(req, res, next) {
-    if (req.session.user) {
-        if (Date.now() - req.session.lastActivity > 30000) { // 30 seconds
-            req.session.destroy();
-            logger.warn('Session timed out');
-            return res.status(401).json({ error: 'Session timed out. Please log in again.' });
-        } else {
-            req.session.lastActivity = Date.now();
+    try {
+        if (req.session.user) {
+            if (Date.now() - req.session.lastActivity > 30000) { // 30 seconds
+                req.session.destroy();
+                logger.warn('Session timed out');
+                return res.status(401).json({ error: 'Session timed out. Please log in again.' });
+            } else {
+                req.session.lastActivity = Date.now();
+            }
         }
+        next();
+    } catch (error) {
+        return handleError(res, error, 'Error checking session timeout');
     }
-    next();
 }
 
 // Middleware to track login attempts
 function trackLoginAttempts(req, res, next) {
-    const ip = req.ip;
-    if (!req.session.loginAttempts) {
-        req.session.loginAttempts = {};
+    try {
+        const ip = req.ip;
+        if (!req.session.loginAttempts) {
+            req.session.loginAttempts = {};
+        }
+        if (!req.session.loginAttempts[ip]) {
+            req.session.loginAttempts[ip] = { attempts: 0, lockUntil: null };
+        }
+        const userAttempts = req.session.loginAttempts[ip];
+        if (userAttempts.lockUntil && userAttempts.lockUntil > Date.now()) {
+            logger.warn(`Too many login attempts from IP: ${ip}`);
+            return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+        }
+        next();
+    } catch (error) {
+        return handleError(res, error, 'Error tracking login attempts');
     }
-    if (!req.session.loginAttempts[ip]) {
-        req.session.loginAttempts[ip] = { attempts: 0, lockUntil: null };
-    }
-    const userAttempts = req.session.loginAttempts[ip];
-    if (userAttempts.lockUntil && userAttempts.lockUntil > Date.now()) {
-        logger.warn(`Too many login attempts from IP: ${ip}`);
-        return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
-    }
-    next();
 }
 
 function handleFailedLoginAttempt(req, res) {
-    const ip = req.ip;
-    const userAttempts = req.session.loginAttempts[ip];
-    userAttempts.attempts += 1;
-    if (userAttempts.attempts >= 3) {
-        userAttempts.lockUntil = Date.now() + 30000; // Lock for 30 seconds after 3 failed attempts
-        logger.warn(`IP ${ip} locked due to too many login attempts`);
-        return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
-    } else {
-        const remainingAttempts = 3 - userAttempts.attempts;
-        return res.status(401).json({ error: `Invalid email or password. You have ${remainingAttempts} more attempts.` });
+    try {
+        const ip = req.ip;
+        const userAttempts = req.session.loginAttempts[ip];
+        userAttempts.attempts += 1;
+        if (userAttempts.attempts >= 3) {
+            userAttempts.lockUntil = Date.now() + 30000; // Lock for 30 seconds after 3 failed attempts
+            logger.warn(`IP ${ip} locked due to too many login attempts`);
+            return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+        } else {
+            const remainingAttempts = 3 - userAttempts.attempts;
+            return res.status(401).json({ error: `Invalid email or password. You have ${remainingAttempts} more attempts.` });
+        }
+    } catch (error) {
+        return handleError(res, error, 'Error handling failed login attempt');
     }
 }
 
 router.get('/check-session', checkSessionTimeout, (req, res) => {
-    if (req.session.user) {
-        res.status(200).json({ message: 'Session active.', roles: req.session.roles, userId: req.session.user.id, userEmail: req.session.user.email });
-    } else {
-        res.status(401).json({ error: 'Session expired.' });
+    try {
+        if (req.session && req.session.user) {
+            res.status(200).json({
+                message: 'Session active.',
+                roles: req.session.roles,
+                userId: req.session.user.id,
+                userEmail: req.session.user.email
+            });
+        } else {
+            res.status(401).json({ error: 'Session expired.' });
+        }
+    } catch (error) {
+        console.error('Session Check Error:', error); // Log the error for more insights
+        return handleError(res, error, 'Error checking session');
     }
 });
 
+
 function validateSession(req, res, next) {
-    const sessionId = req.sessionID;
-    const sql = 'SELECT * FROM sessions WHERE session_id = ?';
-    db.query(sql, [sessionId], (err, results) => {
-        if (err || results.length === 0) {
-            return res.status(401).json({ error: 'Invalid session.' });
-        }
-        next();
-    });
+    try {
+        const sessionId = req.sessionID;
+        const sql = 'SELECT * FROM sessions WHERE session_id = ?';
+        db.query(sql, [sessionId], (err, results) => {
+            if (err || results.length === 0) {
+                return res.status(401).json({ error: 'Invalid session.' });
+            }
+            next();
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error validating session');
+    }
 }
 
 router.use(validateSession); // Apply globally
 
 function renewSession(req, res, next) {
-    const oldSessionId = req.sessionID;
-    req.session.regenerate((err) => {
-        if (err) {
-            return next(err);
-        }
-        const newSessionId = req.sessionID;
-        logger.info(`Renewed session from ${oldSessionId} to ${newSessionId}`);
-        next();
-    });
+    try {
+        const oldSessionId = req.sessionID;
+        req.session.regenerate((err) => {
+            if (err) {
+                return next(err);
+            }
+            const newSessionId = req.sessionID;
+            logger.info(`Renewed session from ${oldSessionId} to ${newSessionId}`);
+            next();
+        });
+    } catch (error) {
+        return handleError(res, error, 'Error renewing session');
+    }
 }
 
 router.get('/session-id', (req, res) => {
-    res.json({ sessionId: req.sessionID });
+    try {
+        res.json({ sessionId: req.sessionID });
+    } catch (error) {
+        return handleError(res, error, 'Error fetching session ID');
+    }
 });
-
 
 module.exports = router;

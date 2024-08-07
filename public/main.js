@@ -33,6 +33,42 @@
       console.log('Completed log operation');
     }
   }
+
+  async function sendErrorLog(email, context) {
+    const csrfToken = getCsrfToken();
+
+    try {
+        const response = await fetch('/log-error', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken // Include CSRF token in headers
+            },
+            body: JSON.stringify({
+                type: 'error',
+                email: email,
+                message: `${context}`,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            // Handle response errors
+            if (response.status === 403) {
+                throw new Error('Invalid CSRF token');
+            } else {
+                throw new Error('Failed to send error log');
+            }
+        }
+
+        console.info('Error log sent successfully');
+    } catch (logError) {
+        console.error('Error sending error log:', logError);
+    } finally {
+        console.log('Completed error log operation');
+    }
+}
+
   
   // Log actions for authentication, transactions, and administrative actions
   function logAuthenticationAction(email, action) {
@@ -58,12 +94,9 @@
 function handleError(context, error, email = 'system') {
     // Log to console for immediate visibility
     console.error(`${context}: ${error.message}`);
-    
-    // Log error using Winston to both error and combined logs
-    logger.error(`${context}: ${error.message}`);
 
     // Send log to the server if necessary
-    sendLog('error', email, `${context}: ${error.message}`);
+    sendErrorLog(type,email, `${context}: ${error.message}`);
 }
   
   // Function to get the CSRF token from the cookie
