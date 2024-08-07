@@ -90,9 +90,6 @@ function getCsrfToken() {
     const adminInput = document.getElementById('admin-input');
     const charCount = document.getElementById('char-count');
   
-    // Get current admin email from localStorage or set a default
-    let currentAdminEmail = localStorage.getItem('currentAdminEmail') || 'unknown@example.com';
-  
     // Character count update
     adminInput.addEventListener('input', () => {
       const remaining = 250 - adminInput.value.length;

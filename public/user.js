@@ -212,6 +212,10 @@ document.addEventListener("DOMContentLoaded", function () {
                                     document.getElementById('quantity-input').value = '';
                                     charCount.textContent = '250 characters remaining';
                                     logTransactionAction(currentUserEmail, 'Post created successfully');
+                                    
+                                    // Refresh the post list after creating a post
+                                    fetchAndDisplayPosts();  // <-- Refresh posts to ensure correct IDs and ownership
+
                                 }
                             })
                             .catch(error => {
@@ -260,6 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Update status logic
         const statusDropdown = newPost.querySelector('.post-category');
+        console.log('Comparing IDs:', currentUserId, postUserId); // Debugging statement
         if (currentUserId === postUserId) {
             statusDropdown.disabled = false; // Ensure it's enabled for the owner
             statusDropdown.addEventListener('change', () => {
@@ -267,25 +272,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'CSRF-Token': getCsrfToken() // Include CSRF token in headers
+                        'CSRF-Token': getCsrfToken(), // Include CSRF token in headers
                     },
-                    body: JSON.stringify({ status: statusDropdown.value })
+                    body: JSON.stringify({ status: statusDropdown.value }),
                 })
-                    .then(response => {
+                    .then((response) => {
                         if (!response.ok) {
-                            throw new Error('Failed to update post status');
+                            throw new Error('Network response was not ok');
                         }
                         return response.json();
                     })
-                    .then(data => {
+                    .then((data) => {
                         if (data.error) {
-                            handleError('Error updating post status', new Error(data.error), currentUserEmail);
+                            handleError('Error updating post status', new Error(data.error), currentAdminEmail);
                         } else {
-                            logTransactionAction(currentUserEmail, `Post status updated to ${statusDropdown.value}`);
+                            logAdminAction(currentAdminEmail, `Post status updated to ${statusDropdown.value}`);
                         }
                     })
-                    .catch(error => {
-                        handleError('Error updating post status', error, currentUserEmail);
+                    .catch((error) => {
+                        handleError('Error updating post status', error, currentAdminEmail);
                     });
             });
         } else {
